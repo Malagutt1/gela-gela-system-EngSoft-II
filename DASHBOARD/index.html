@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gela-Gela | Dashboard</title>
+
+    <link rel="stylesheet" href="../ASSETS/CSS/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body>
+
+    <div class="layout">
+
+        <aside class="sidebar" id="sidebar">
+            <div class="logo-area">
+                <img src="../ASSETS/IMG/icon.png" alt="Logo">
+                <span>Gela-Gela</span>
+            </div>
+
+            <nav>
+                <a href="../" <i class="fa-solid fa-house"></i> Nova Vendas</a>
+                <a href="./" class="active"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
+                <a href="../PRODUTOS/"><i class="fa-solid fa-boxes-stacked"></i> Estoque & Produtos</a>
+                <a href="../CLIENTES/"><i class="fa-solid fa-users"></i> Clientes</a>
+                <a href="../RELATORIO/"><i class="fa-solid fa-chart-pie"></i> Relatórios</a>
+            </nav>
+        </aside>
+
+        <main class="content">
+
+            <header class="topbar">
+                <button class="menu-btn" onclick="toggleSidebar()">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+                <h1>Visão Geral do Sistema</h1>
+            </header>
+
+            <section class="main">
+
+                <div class="grid-cards">
+                    <div class="card">
+                        <h4>Faturamento Mensal</h4>
+                        <p>R$ 215.475,00</p>
+                        <span><i class="fa-solid fa-arrow-trend-up" style="color: #27ae60;"></i> +12% relação ao mês
+                            anterior</span>
+                    </div>
+
+                    <div class="card">
+                        <h4>Lucro Estimado</h4>
+                        <p>R$ 60.591,00</p>
+                        <span>Despesas já abatidas</span>
+                    </div>
+
+                    <div class="card">
+                        <h4>Ticket Médio</h4>
+                        <p>R$ 32,50</p>
+                        <span>~255 clientes por dia</span>
+                    </div>
+
+                    <div class="card" style="border-left-color: var(--secondary);">
+                        <h4>Giro de Estoque</h4>
+                        <p>495 kg</p>
+                        <span>Consumo semanal médio</span>
+                    </div>
+                </div>
+
+                <div class="grid-main">
+
+                    <div class="box">
+                        <h3><i class="fa-solid fa-clock-rotate-left"></i> Últimas Vendas Registradas</h3>
+                        <div style="overflow-x: auto;">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Cliente</th>
+                                        <th>Produtos</th>
+                                        <th>Peso (kg)</th>
+                                        <th>Valor Total</th>
+                                        <th>Pagamento</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>João Silva</td>
+                                        <td>Pistache, Morango + Toppings</td>
+                                        <td>1.200</td>
+                                        <td>R$ 84,00</td>
+                                        <td>Pix</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Maria Alves</td>
+                                        <td>Açaí Tradicional + Leite Ninho</td>
+                                        <td>0.800</td>
+                                        <td>R$ 56,00</td>
+                                        <td>Cartão Débito</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Carlos Souza</td>
+                                        <td>Chocolate Branco, Brownie</td>
+                                        <td>0.500</td>
+                                        <td>R$ 35,00</td>
+                                        <td>Dinheiro</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; flex-direction: column; gap: 25px;">
+
+                        <div class="box">
+                            <h3><i class="fa-solid fa-triangle-exclamation"></i> Alertas de Estoque</h3>
+                            <ul class="list">
+                                <li>
+                                    <span><i class="fa-solid fa-ice-cream"></i> Sorvete de Chocolate</span>
+                                    <span class="badge danger">Baixo (5kg)</span>
+                                </li>
+                                <li>
+                                    <span><i class="fa-solid fa-bowl-food"></i> Açaí Tradicional</span>
+                                    <span class="badge warn">Atenção (10kg)</span>
+                                </li>
+                                <li>
+                                    <span><i class="fa-solid fa-cookie"></i> Gotas de Chocolate (Topping)</span>
+                                    <span class="badge ok">Estoque OK</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="box">
+                            <h3><i class="fa-solid fa-bolt"></i> Ações Rápidas</h3>
+                            <div class="actions">
+                                <button class="btn" onclick="location.href='pdv.html'">
+                                    <i class="fa-solid fa-cart-plus"></i> Registrar Nova Venda
+                                </button>
+                                <button class="btn btn-secondary" onclick="location.href='produtos.html'">
+                                    <i class="fa-solid fa-box-open"></i> Receber Mercadoria
+                                </button>
+                                <button class="btn btn-secondary" onclick="location.href='relatorios.html'">
+                                    <i class="fa-solid fa-file-pdf"></i> Gerar Relatório (PDF)
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="ASSETS/JS/app.js"></script>
+
+</body>
+
+</html>

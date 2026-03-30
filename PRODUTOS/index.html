@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gela-Gela | Estoque & Produtos</title>
+
+    <link rel="stylesheet" href="../ASSETS/CSS/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body>
+
+    <div class="layout">
+
+        <aside class="sidebar" id="sidebar">
+            <div class="logo-area">
+                <img src="../ASSETS/IMG/icon.png" alt="Logo">
+                <span>Gela-Gela</span>
+            </div>
+
+            <nav>
+                <a href="../"><i class="fa-solid fa-house"></i> Nova Vendas</a>
+                <a href="../DASHBOARD/"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
+                <a href="./" class="active"><i class="fa-solid fa-boxes-stacked"></i> Estoque & Produtos</a>
+                <a href="../CLIENTES/"><i class="fa-solid fa-users"></i> Clientes</a>
+                <a href="../RELATORIO/"><i class="fa-solid fa-chart-pie"></i> Relatórios</a>
+            </nav>
+        </aside>
+
+        <main class="content">
+
+            <header class="topbar">
+                <button class="menu-btn" onclick="toggleSidebar()">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+                <h1>Visão Geral do Sistema</h1>
+            </header>
+
+            <section class="main">
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+                    <h2><i class="fa-solid fa-boxes-stacked"></i> Gerenciamento de Produtos</h2>
+                    <button class="btn" onclick="abrirModal()">
+                        <i class="fa-solid fa-plus"></i> Novo Produto
+                    </button>
+                </div>
+
+                <div class="box">
+                    <div style="overflow-x: auto;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Nome</th>
+                                    <th>Categoria</th>
+                                    <th>Preço Venda</th>
+                                    <th>Estoque Atual</th>
+                                    <th>Validade</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabela-produtos">
+                                <tr>
+                                    <td>Chocolate</td>
+                                    <td><span class="tag-resumo">Sorvete</span></td>
+                                    <td>R$ 28,00/kg</td>
+                                    <td><strong class="badge ok">35 kg</strong></td>
+                                    <td>15/06/2026</td>
+                                    <td>
+                                        <button class="btn-icon"><i class="fa-solid fa-pen"></i></button>
+                                        <button class="btn-icon danger"><i class="fa-solid fa-trash"></i></button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Açaí Tradicional</td>
+                                    <td><span class="tag-resumo">Sorvete</span></td>
+                                    <td>R$ 32,50/kg</td>
+                                    <td><strong class="badge ok">35 kg</strong></td>
+                                    <td>10/07/2026</td>
+                                    <td>
+                                        <button class="btn-icon"><i class="fa-solid fa-pen"></i></button>
+                                        <button class="btn-icon danger"><i class="fa-solid fa-trash"></i></button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Creme</td>
+                                    <td><span class="tag-resumo">Sorvete</span></td>
+                                    <td>R$ 28,00/kg</td>
+                                    <td><strong class="badge warn">25 kg</strong></td>
+                                    <td>20/05/2026</td>
+                                    <td>
+                                        <button class="btn-icon"><i class="fa-solid fa-pen"></i></button>
+                                        <button class="btn-icon danger"><i class="fa-solid fa-trash"></i></button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Embalagens/Copos</td>
+                                    <td><span class="tag-resumo">Insumo</span></td>
+                                    <td>R$ 0,45/un</td>
+                                    <td><strong class="badge ok">5.000 un</strong></td>
+                                    <td>N/A</td>
+                                    <td>
+                                        <button class="btn-icon"><i class="fa-solid fa-pen"></i></button>
+                                        <button class="btn-icon danger"><i class="fa-solid fa-trash"></i></button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="modalProduto" class="modal">
+                    <div class="modal-content box">
+                        <h3 id="modalTitle">Cadastrar Novo Produto</h3>
+                        <form id="formProduto" onsubmit="salvarProduto(event)">
+                            <div class="grid-form">
+                                <div class="form-group">
+                                    <label>Nome do Produto</label>
+                                    <input type="text" id="p-nome" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Categoria</label>
+                                    <select id="p-categoria">
+                                        <option value="sorvete">Sorvete</option>
+                                        <option value="topping">Topping</option>
+                                        <option value="insumo">Insumo</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Preço Custo</label>
+                                    <input type="number" id="p-custo" step="0.01">
+                                </div>
+                                <div class="form-group">
+                                    <label>Preço Venda</label>
+                                    <input type="number" id="p-venda" step="0.01">
+                                </div>
+                                <div class="form-group">
+                                    <label>Qtd. Inicial</label>
+                                    <input type="number" id="p-qtd">
+                                </div>
+                                <div class="form-group">
+                                    <label>Unidade</label>
+                                    <input type="text" id="p-un" placeholder="kg, un, lt">
+                                </div>
+                                <div class="form-group">
+                                    <label>Validade</label>
+                                    <input type="date" id="p-validade">
+                                </div>
+                                <div class="form-group">
+                                    <label>Fornecedor</label>
+                                    <input type="text" id="p-fornecedor">
+                                </div>
+                            </div>
+                            <div style="margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end;">
+                                <button type="button" class="btn btn-secondary"
+                                    onclick="fecharModal()">Cancelar</button>
+                                <button type="submit" class="btn">Salvar Produto</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="../ASSETS/JS/app.js"></script>
+
+</body>
+
+</html>
