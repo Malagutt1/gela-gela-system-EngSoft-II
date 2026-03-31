@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Gela-Gela | Usuários</title>
+
+    <link rel="stylesheet" href="../ASSETS/CSS/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body>
+
+    <div class="layout">
+
+        <aside class="sidebar">
+            <div class="logo-area">
+                <img src="../ASSETS/IMG/icon.png">
+                <span>Gela-Gela</span>
+            </div>
+
+            <nav>
+                <a href="../"><i class="fa-solid fa-cart-shopping"></i> Nova Venda</a>
+                <a href="../DASHBOARD/"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
+                <a href="../PRODUTOS/"><i class="fa-solid fa-boxes-stacked"></i> Produtos</a>
+                <a href="../CLIENTES/"><i class="fa-solid fa-users"></i> Clientes</a>
+                <a href="../FORNECEDORES/"><i class="fa-solid fa-truck"></i> Fornecedores</a>
+                <a href="../PROMO/"><i class="fa-solid fa-tags"></i> Promoções</a>
+                <a href="./" class="active"><i class="fa-solid fa-user-shield"></i> Usuários</a>
+                <a href="../BACKUP/"><i class="fa-solid fa-database"></i> Backup</a>
+                <a href="../LOGS/"><i class="fa-solid fa-file-lines"></i> Logs</a>
+                <a href="../RELATORIO/"><i class="fa-solid fa-chart-pie"></i> Relatórios</a>
+            </nav>
+        </aside>
+
+        <main class="content">
+
+            <header class="topbar">
+                <h1>Controle de Usuários</h1>
+            </header>
+
+            <section class="main">
+
+                <div style="display:flex; justify-content:space-between;">
+                    <h2>Usuários do Sistema</h2>
+                    <button class="btn" onclick="abrirModalUsuario()">Novo Usuário</button>
+                </div>
+
+                <div class="box">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>Login</th>
+                                <th>Tipo</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="tabela-usuarios">
+                            <tr>
+                                <td>Admin</td>
+                                <td>admin</td>
+                                <td><span class="badge danger">Gerente</span></td>
+                                <td>
+                                    <button class="btn-icon"><i class="fa fa-pen"></i></button>
+                                    <button class="btn-icon danger" onclick="excluirUsuario(this)">
+                                        <i class="fa fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td>João</td>
+                                <td>joao</td>
+                                <td><span class="badge ok">Funcionário</span></td>
+                                <td>
+                                    <button class="btn-icon"></button>
+                                    <button class="btn-icon danger" onclick="excluirUsuario(this)">
+                                        <i class="fa fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </section>
+        </main>
+    </div>
+
+    <!-- MODAL -->
+    <div id="modalUsuario" class="modal">
+        <div class="modal-content box">
+            <h3>Novo Usuário</h3>
+
+            <form onsubmit="salvarUsuario(event)">
+                <input type="text" id="u-nome" placeholder="Nome" required>
+                <input type="text" id="u-login" placeholder="Login" required>
+
+                <select id="u-tipo">
+                    <option value="funcionario">Funcionário</option>
+                    <option value="gerente">Gerente</option>
+                </select>
+
+                <button class="btn">Salvar</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="../ASSETS/JS/app.js"></script>
+
+</body>
+
+</html>

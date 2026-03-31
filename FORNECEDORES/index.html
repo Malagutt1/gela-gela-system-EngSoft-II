@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gela-Gela | Clientes</title>
+    <title>Gela-Gela | Fornecedores</title>
 
     <link rel="stylesheet" href="../ASSETS/CSS/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -25,8 +25,8 @@
                 <a href="../"><i class="fa-solid fa-cart-shopping"></i> Nova Venda</a>
                 <a href="../DASHBOARD/"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
                 <a href="../PRODUTOS/"><i class="fa-solid fa-boxes-stacked"></i> Produtos</a>
-                <a href="./" class="active"><i class="fa-solid fa-users"></i> Clientes</a>
-                <a href="../FORNECEDORES/"><i class="fa-solid fa-truck"></i> Fornecedores</a>
+                <a href="../CLIENTES/"><i class="fa-solid fa-users"></i> Clientes</a>
+                <a href="./" class="active"><i class="fa-solid fa-truck"></i> Fornecedores</a>
                 <a href="../PROMO/"><i class="fa-solid fa-tags"></i> Promoções</a>
                 <a href="../USUARIO/"><i class="fa-solid fa-user-shield"></i> Usuários</a>
                 <a href="../BACKUP/"><i class="fa-solid fa-database"></i> Backup</a>
@@ -42,20 +42,25 @@
                 <button class="menu-btn" onclick="toggleSidebar()">
                     <i class="fa-solid fa-bars"></i>
                 </button>
-                <h1>Gestão de Clientes</h1>
+                <h1>Gestão de Fornecedores</h1>
             </header>
 
             <section class="main">
 
+                <!-- ALERTA DE PERMISSÃO -->
+                <div class="box" style="margin-bottom:20px; background:#fff3cd; color:#856404;">
+                    🔒 Apenas <strong>Gerentes</strong> podem cadastrar, editar ou excluir fornecedores.
+                </div>
+
                 <!-- TOPO -->
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:25px;">
-                    <h2><i class="fa-solid fa-users"></i> Clientes Cadastrados</h2>
-                    <button class="btn" onclick="abrirModalCliente()">
-                        <i class="fa-solid fa-plus"></i> Novo Cliente
+                    <h2><i class="fa-solid fa-truck"></i> Fornecedores</h2>
+                    <button class="btn" onclick="abrirModalFornecedor()">
+                        <i class="fa-solid fa-plus"></i> Novo Fornecedor
                     </button>
                 </div>
 
-                <!-- TABELA CLIENTES -->
+                <!-- TABELA -->
                 <div class="box">
                     <div class="table-container">
                         <table>
@@ -63,42 +68,39 @@
                                 <tr>
                                     <th>Nome</th>
                                     <th>Contato</th>
-                                    <th>Última Compra</th>
+                                    <th>Tipo de Produto</th>
+                                    <th>Prazo</th>
                                     <th>Ações</th>
                                 </tr>
                             </thead>
 
-                            <tbody id="tabela-clientes">
+                            <tbody id="tabela-fornecedores">
 
                                 <tr>
-                                    <td>João Silva</td>
-                                    <td>(49) 99999-1111</td>
-                                    <td>25/03/2026</td>
+                                    <td>Distribuidora Sul</td>
+                                    <td>(49) 99911-2233</td>
+                                    <td><span class="tag-resumo">Insumos</span></td>
+                                    <td>3 dias</td>
                                     <td>
-                                        <button class="btn-icon" onclick="abrirFeedback()">
-                                            <i class="fa-solid fa-comment"></i>
-                                        </button>
                                         <button class="btn-icon">
                                             <i class="fa-solid fa-pen"></i>
                                         </button>
-                                        <button class="btn-icon danger" onclick="excluirLinha(this)">
+                                        <button class="btn-icon danger" onclick="excluirFornecedor(this)">
                                             <i class="fa-solid fa-trash"></i>
                                         </button>
                                     </td>
                                 </tr>
 
                                 <tr>
-                                    <td>Maria Alves</td>
-                                    <td>(49) 98888-2222</td>
-                                    <td>28/03/2026</td>
+                                    <td>FrioGel Sorvetes</td>
+                                    <td>(49) 98877-6655</td>
+                                    <td><span class="tag-resumo">Sorvetes</span></td>
+                                    <td>5 dias</td>
                                     <td>
-                                        <button class="btn-icon" onclick="abrirFeedback()">
-                                            <i class="fa-solid fa-comment"></i>
-                                        </button>
                                         <button class="btn-icon">
                                             <i class="fa-solid fa-pen"></i>
                                         </button>
-                                        <button class="btn-icon danger" onclick="excluirLinha(this)">
+                                        <button class="btn-icon danger" onclick="excluirFornecedor(this)">
                                             <i class="fa-solid fa-trash"></i>
                                         </button>
                                     </td>
@@ -113,69 +115,41 @@
         </main>
     </div>
 
-    <!-- MODAL CLIENTE -->
-    <div id="modalCliente" class="modal">
+    <!-- MODAL -->
+    <div id="modalFornecedor" class="modal">
         <div class="modal-content box">
-            <h3>Cadastrar Cliente</h3>
+            <h3>Cadastrar Fornecedor</h3>
 
-            <form onsubmit="salvarCliente(event)">
+            <form onsubmit="salvarFornecedor(event)">
                 <div class="grid-form">
 
                     <div class="form-group">
                         <label>Nome</label>
-                        <input type="text" id="c-nome" required>
+                        <input type="text" id="f-nome" required>
                     </div>
 
                     <div class="form-group">
-                        <label>Telefone</label>
-                        <input type="text" id="c-telefone">
+                        <label>Contato</label>
+                        <input type="text" id="f-contato">
                     </div>
 
                     <div class="form-group">
-                        <label>Email</label>
-                        <input type="email" id="c-email">
+                        <label>Tipo de Produto</label>
+                        <input type="text" id="f-tipo">
                     </div>
 
                     <div class="form-group">
-                        <label>Observações</label>
-                        <input type="text" id="c-obs">
+                        <label>Prazo de Entrega</label>
+                        <input type="text" id="f-prazo" placeholder="Ex: 3 dias">
                     </div>
 
                 </div>
 
                 <div style="margin-top:20px; display:flex; justify-content:flex-end; gap:10px;">
-                    <button type="button" class="btn btn-secondary" onclick="fecharModalCliente()">Cancelar</button>
-                    <button type="submit" class="btn">Salvar Cliente</button>
+                    <button type="button" class="btn btn-secondary" onclick="fecharModalFornecedor()">Cancelar</button>
+                    <button type="submit" class="btn">Salvar</button>
                 </div>
-
             </form>
-        </div>
-    </div>
-
-    <!-- MODAL FEEDBACK -->
-    <div id="modalFeedback" class="modal">
-        <div class="modal-content box">
-            <h3>Registrar Feedback</h3>
-
-            <div class="form-group">
-                <label>Tipo</label>
-                <select id="f-tipo">
-                    <option>Dúvida</option>
-                    <option>Reclamação</option>
-                    <option>Sugestão</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label>Descrição</label>
-                <input type="text" id="f-desc">
-            </div>
-
-            <div style="margin-top:20px; display:flex; justify-content:flex-end; gap:10px;">
-                <button class="btn btn-secondary" onclick="fecharFeedback()">Cancelar</button>
-                <button class="btn" onclick="salvarFeedback()">Registrar</button>
-            </div>
-
         </div>
     </div>
 
