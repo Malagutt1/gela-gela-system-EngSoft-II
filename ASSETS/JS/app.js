@@ -22,11 +22,8 @@ let itensSelecionados = [];
 function toggleSidebar() {
     const sidebar = document.getElementById("sidebar");
     if (!sidebar) return;
-
-    sidebar.style.display =
-        sidebar.style.display === "none" || sidebar.style.display === ""
-            ? "block"
-            : "none";
+    const isVisible = window.getComputedStyle(sidebar).display !== "none";     // Pega o estilo computado (CSS real) em vez de inline
+    sidebar.style.display = isVisible ? "none" : "block";
 }
 
 // ==================== FUNÇÕES DE SELEÇÃO DE ITENS ====================
@@ -89,16 +86,31 @@ function finalizarVenda() {
 
 function abrirModal() {
     const modal = document.getElementById('modalProduto');
+    const params = new URLSearchParams(window.location.search);
+    const isGerente = params.has("gerente");
+    const campoPreco = document.getElementById('p-venda');
+
     if (modal) {
-        modal.style.display = 'flex'; // ou 'block', dependendo do seu CSS
+        modal.classList.add('show');
         document.getElementById('modalTitle').innerText = 'Cadastrar Novo Produto';
+
+        // Se NÃO é gerente, seta preço fixo e desabilita
+        if (!isGerente && campoPreco) {
+            campoPreco.value = PRECO_QUILO;
+            campoPreco.disabled = true;
+            campoPreco.style.opacity = '0.5';
+            campoPreco.title = 'Apenas gerentes podem alterar preços';
+        } else if (campoPreco) {
+            campoPreco.disabled = false;
+            campoPreco.style.opacity = '1';
+        }
     }
 }
 
 function fecharModal() {
     const modal = document.getElementById('modalProduto');
     if (modal) {
-        modal.style.display = 'none';
+        modal.classList.remove('show');
     }
 
     // Resetar formulário
@@ -126,6 +138,31 @@ function salvarProduto(event) {
     const tabela = document.getElementById('tabela-produtos');
     if (!tabela) return;
 
+    // Verificar se é gerente
+    const params = new URLSearchParams(window.location.search);
+    const isGerente = params.has("gerente");
+
+    // Botões que aparecem dependendo do nível
+    let botoesAcao = '';
+    if (isGerente) {
+        // Gerente vê editar E deletar
+        botoesAcao = `
+            <button class="btn-icon btn-editar" onclick="editarProduto(this)">
+                <i class="fa-solid fa-pen"></i>
+            </button>
+            <button class="btn-icon danger btn-deletar" onclick="excluirProduto(this)">
+                <i class="fa-solid fa-trash"></i>
+            </button>
+        `;
+    } else {
+        // Funcionário vê apenas editar
+        botoesAcao = `
+            <button class="btn-icon btn-editar" onclick="editarProduto(this)">
+                <i class="fa-solid fa-pen"></i>
+            </button>
+        `;
+    }
+
     const novaLinha = `
         <tr>
             <td>${nome}</td>
@@ -134,12 +171,7 @@ function salvarProduto(event) {
             <td><strong class="badge ok">${qtd} ${un}</strong></td>
             <td>${validade}</td>
             <td>
-                <button class="btn-icon" onclick="alert('Editar funcionalidade simulada')">
-                    <i class="fa-solid fa-pen"></i>
-                </button>
-                <button class="btn-icon danger" onclick="excluirProduto(this)">
-                    <i class="fa-solid fa-trash"></i>
-                </button>
+                ${botoesAcao}
             </td>
         </tr>
     `;
@@ -155,6 +187,25 @@ function excluirProduto(btn) {
         if (linha) linha.remove();
         alert("Produto removido!");
     }
+}
+
+function editarProduto(btn) {
+    const linha = btn.closest('tr');
+    const nome = linha.cells[0].innerText;
+    const categoria = linha.cells[1].innerText;
+    const preco = linha.cells[2].innerText;
+    const estoque = linha.cells[3].innerText;
+    const validade = linha.cells[4].innerText;
+
+    // Preencher modal com dados atuais
+    document.getElementById('p-nome').value = nome;
+    document.getElementById('p-categoria').value = categoria.toLowerCase();
+    document.getElementById('p-venda').value = preco.replace('R$ ', '').replace('/kg', '').replace('/un', '');
+    document.getElementById('p-qtd').value = estoque.replace(' kg', '').replace(' un', '');
+    document.getElementById('p-validade').value = validade;
+
+    // Abrir modal para editar
+    abrirModal();
 }
 
 // ==================== INICIALIZAÇÃO ====================
@@ -315,52 +366,6 @@ function excluirFornecedor(btn) {
     }
 }
 
-
-// ==================== CONTROLE DE ACESSO ====================
-function verificarPermissaoFornecedor() {
-
-    // só roda na página de fornecedores
-    if (!window.location.pathname.includes("FORNECEDORES")) return;
-
-    const params = new URLSearchParams(window.location.search);
-    const isGerente = params.has("gerente");
-
-    // ❌ não é gerente → bloqueia
-    if (!isGerente) {
-        document.body.innerHTML = `
-            <div style="
-                display:flex;
-                justify-content:center;
-                align-items:center;
-                height:100vh;
-                flex-direction:column;
-                font-family:sans-serif;
-                text-align:center;
-                background:#f8f9fa;
-            ">
-                <h1 style="color:#c62828;">⛔ Acesso Negado</h1>
-                <p style="margin:10px 0;">
-                    Apenas usuários <strong>Gerentes</strong> podem acessar esta página.
-                </p>
-                <a href="../index.html" style="
-                    margin-top:15px;
-                    padding:10px 20px;
-                    background:#11417b;
-                    color:white;
-                    text-decoration:none;
-                    border-radius:6px;
-                ">
-                    Voltar ao sistema
-                </a>
-            </div>
-        `;
-    }
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-    verificarPermissaoFornecedor();
-});
-
 // ==================== PROMOÇÕES ====================
 
 function abrirModalPromo() {
@@ -412,8 +417,24 @@ function excluirPromo(btn) {
 // ==================== USUÁRIOS ====================
 
 function abrirModalUsuario() {
-    document.getElementById('modalUsuario').style.display = 'flex';
+    document.getElementById('modalUsuario').classList.add('show');
 }
+
+function fecharModalUsuario() {
+    document.getElementById('modalUsuario').classList.remove('show');
+}
+
+// Fechar ao clicar fora do modal
+document.addEventListener('DOMContentLoaded', () => {
+    const modals = document.querySelectorAll('.modal');
+    modals.forEach(modal => {
+        modal.addEventListener('click', function (e) {
+            if (e.target === modal) {
+                modal.classList.remove('show');
+            }
+        });
+    });
+});
 
 function salvarUsuario(e) {
     e.preventDefault();
@@ -430,7 +451,7 @@ function salvarUsuario(e) {
             <td>${login}</td>
             <td><span class="badge ${tipo === 'gerente' ? 'danger' : 'ok'}">${tipo}</span></td>
             <td>
-                <button class="btn-icon"></button>
+                <button class="btn-icon"><i class="fa fa-pen"></i></button>
                 <button class="btn-icon danger" onclick="excluirUsuario(this)">
                     <i class="fa fa-trash"></i>
                 </button>
@@ -439,6 +460,12 @@ function salvarUsuario(e) {
     `;
 
     alert("Usuário criado!");
+
+    // Resetar formulário
+    e.target.reset();
+
+    // Fechar modal
+    fecharModalUsuario();
 }
 
 function excluirUsuario(btn) {
@@ -448,34 +475,122 @@ function excluirUsuario(btn) {
 
 function verificarNivel() {
     const params = new URLSearchParams(window.location.search);
-
     const isGerente = params.has("gerente");
 
-    if (!isGerente) {
+    const pathname = window.location.pathname.toUpperCase();
 
-        // esconder botões perigosos
-        document.querySelectorAll(".btn, .btn-icon").forEach(btn => {
+    console.log("Página atual detetada:", pathname);
+    console.log("É gerente?", isGerente);
+
+    if (!isGerente) {
+        // 1. ESCONDER BOTÕES (Exceto Venda, Produto e Editar)
+        document.querySelectorAll(".btn:not(.btn-venda):not(.btn-produto), .btn-icon:not(.btn-editar)").forEach(btn => {
             btn.style.display = "none";
         });
 
-        // bloquear páginas críticas
-        const pagina = window.location.pathname;
+        // 2. LISTA DE BLOQUEIO
+        const paginasProibidas = [
+            "BACKUP",
+            "DASHBOARD",
+            "LOGS",
+            "PROMO",
+            "RELATORIO",
+            "USUARIO",
+            "FORNECEDOR"
+        ];
 
-        if (
-            pagina.includes("FORNECEDORES") ||
-            pagina.includes("USUARIOS") ||
-            pagina.includes("BACKUP")
-        ) {
+        const deveBloquear = paginasProibidas.some(p => pathname.includes(p));
+
+        if (deveBloquear) {
             document.body.innerHTML = `
-                <div style="text-align:center; padding:50px;">
-                    <h1>⛔ Acesso Restrito</h1>
-                    <p>Apenas gerentes podem acessar esta área</p>
-                    <a href="../index.html">Voltar</a>
-                </div>
-            `;
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+        
+        <style>
+            @import url('https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700&display=swap');
+            
+            body {
+                margin: 0; padding: 0; height: 100vh;
+                display: flex; justify-content: center; align-items: center;
+                background-color: #f8f9fa;
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            }
+
+            .block-card {
+                background: #ffffff;
+                padding: 40px 30px;
+                border-radius: 16px;
+                box-shadow: 0 15px 35px rgba(17, 65, 123, 0.1);
+                text-align: center;
+                max-width: 420px;
+                width: 90%;
+                border-top: 6px solid #e74c3c;
+                animation: popIn 0.4s ease-out forwards;
+            }
+
+            @keyframes popIn {
+                0% { transform: scale(0.9); opacity: 0; }
+                100% { transform: scale(1); opacity: 1; }
+            }
+
+            .block-icon {
+                font-size: 60px;
+                color: #e74c3c;
+                margin-bottom: 20px;
+            }
+
+            .block-card h1 {
+                color: #11417b;
+                font-size: 26px;
+                margin-bottom: 10px;
+                margin-top: 0;
+            }
+
+            .block-card p {
+                color: #666666;
+                font-size: 15px;
+                line-height: 1.5;
+                margin-bottom: 30px;
+            }
+
+            .btn-voltar {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                gap: 10px;
+                padding: 12px 25px;
+                background-color: #11417b;
+                color: white;
+                text-decoration: none;
+                border-radius: 8px;
+                font-weight: 600;
+                transition: all 0.3s ease;
+            }
+
+            .btn-voltar:hover {
+                background-color: #b76756;
+                transform: translateY(-2px);
+            }
+        </style>
+
+        <div class="block-card">
+            <div class="block-icon">
+                <i class="fas fa-user-shield"></i>
+            </div>
+            <h1>Acesso Restrito</h1>
+            <p>Esta área é exclusiva para <strong>Gerentes</strong>.<br>O seu nível de acesso não permite visualizar este conteúdo.</p>
+            <a href="../" class="btn-voltar">
+                <i class="fas fa-house-user"></i> Ir para o Início
+            </a>
+        </div>
+    `;
         }
+
     }
+    // Se for gerente, mostra tudo normalmente
 }
+
+// Executa assim que o HTML carregar
+document.addEventListener("DOMContentLoaded", verificarNivel);
 
 document.addEventListener("DOMContentLoaded", verificarNivel);
 
@@ -536,4 +651,163 @@ function adicionarLog(usuario, acao, descricao) {
             <td>${descricao}</td>
         </tr>
     `;
+}
+
+/* ===== RELATORIO ==== */
+function filtrarRelatorio() {
+    const periodo = document.getElementById('filtro-data').value;
+    const tipo = document.getElementById('filtro-tipo').value;
+    const tabela = document.querySelector('table tbody');
+
+    if (!tabela) {
+        alert("Erro: Tabela não encontrada!");
+        return;
+    }
+
+    let dados = '';
+
+    // SIMULAÇÃO DE FILTRO
+    if (tipo === 'vendas') {
+        dados = `
+            <tr>
+                <td>${periodo}</td>
+                <td>Total de Vendas</td>
+                <td>Vendas</td>
+                <td>R$ 12.500,00</td>
+            </tr>
+            <tr>
+                <td>${periodo}</td>
+                <td>Clientes Atendidos</td>
+                <td>Vendas</td>
+                <td>320</td>
+            </tr>
+        `;
+    } else if (tipo === 'estoque') {
+        dados = `
+            <tr>
+                <td>${periodo}</td>
+                <td>Consumo de Sorvete</td>
+                <td>Estoque</td>
+                <td>120 kg</td>
+            </tr>
+            <tr>
+                <td>${periodo}</td>
+                <td>Reposição Necessária</td>
+                <td>Estoque</td>
+                <td>80 kg</td>
+            </tr>
+        `;
+    } else if (tipo === 'financeiro') {
+        dados = `
+            <tr>
+                <td>${periodo}</td>
+                <td>Faturamento</td>
+                <td>Financeiro</td>
+                <td>R$ 25.000,00</td>
+            </tr>
+            <tr>
+                <td>${periodo}</td>
+                <td>Lucro Líquido</td>
+                <td>Financeiro</td>
+                <td>R$ 8.200,00</td>
+            </tr>
+        `;
+    }
+
+    tabela.innerHTML = dados;
+    alert("Relatório filtrado com sucesso!");
+}
+
+/* ===== LOGS ==== */
+function filtrarLogs() {
+    const usuario = document.querySelector('select').value; // Primeiro select
+    const acao = document.querySelectorAll('select')[1].value; // Segundo select
+    const tabela = document.querySelector('table tbody');
+
+    if (!tabela) {
+        alert("Erro: Tabela não encontrada!");
+        return;
+    }
+
+    let dados = '';
+
+    // SIMULAÇÃO DE FILTRO
+    if (usuario === 'Todos' && acao === 'Todos') {
+        dados = `
+            <tr>
+                <td>31/03/2026 10:12</td>
+                <td>admin</td>
+                <td><span class="badge ok">Cadastro</span></td>
+                <td>Produto criado</td>
+            </tr>
+            <tr>
+                <td>31/03/2026 11:30</td>
+                <td>joao</td>
+                <td><span class="badge warn">Venda</span></td>
+                <td>Venda realizada</td>
+            </tr>
+            <tr>
+                <td>31/03/2026 12:05</td>
+                <td>admin</td>
+                <td><span class="badge danger">Exclusão</span></td>
+                <td>Produto removido</td>
+            </tr>
+        `;
+    } else if (usuario === 'admin') {
+        dados = `
+            <tr>
+                <td>31/03/2026 10:12</td>
+                <td>admin</td>
+                <td><span class="badge ok">Cadastro</span></td>
+                <td>Produto criado</td>
+            </tr>
+            <tr>
+                <td>31/03/2026 12:05</td>
+                <td>admin</td>
+                <td><span class="badge danger">Exclusão</span></td>
+                <td>Produto removido</td>
+            </tr>
+        `;
+    } else if (usuario === 'joao') {
+        dados = `
+            <tr>
+                <td>31/03/2026 11:30</td>
+                <td>joao</td>
+                <td><span class="badge warn">Venda</span></td>
+                <td>Venda realizada</td>
+            </tr>
+        `;
+    }
+
+    if (acao === 'Cadastro') {
+        dados = `
+            <tr>
+                <td>31/03/2026 10:12</td>
+                <td>admin</td>
+                <td><span class="badge ok">Cadastro</span></td>
+                <td>Produto criado</td>
+            </tr>
+        `;
+    } else if (acao === 'Exclusão') {
+        dados = `
+            <tr>
+                <td>31/03/2026 12:05</td>
+                <td>admin</td>
+                <td><span class="badge danger">Exclusão</span></td>
+                <td>Produto removido</td>
+            </tr>
+        `;
+    } else if (acao === 'Venda') {
+        dados = `
+            <tr>
+                <td>31/03/2026 11:30</td>
+                <td>joao</td>
+                <td><span class="badge warn">Venda</span></td>
+                <td>Venda realizada</td>
+            </tr>
+        `;
+    }
+
+    tabela.innerHTML = dados;
+    alert("Logs filtrados com sucesso!");
 }

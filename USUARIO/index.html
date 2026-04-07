@@ -13,7 +13,7 @@
 
     <div class="layout">
 
-        <aside class="sidebar">
+        <aside class="sidebar" id="sidebar">
             <div class="logo-area">
                 <img src="../ASSETS/IMG/icon.png">
                 <span>Gela-Gela</span>
@@ -36,6 +36,9 @@
         <main class="content">
 
             <header class="topbar">
+                <button class="menu-btn" onclick="toggleSidebar()">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
                 <h1>Controle de Usuários</h1>
             </header>
 
@@ -75,7 +78,7 @@
                                 <td>joao</td>
                                 <td><span class="badge ok">Funcionário</span></td>
                                 <td>
-                                    <button class="btn-icon"></button>
+                                    <button class="btn-icon"><i class="fa fa-pen"></i></button>
                                     <button class="btn-icon danger" onclick="excluirUsuario(this)">
                                         <i class="fa fa-trash"></i>
                                     </button>
@@ -91,19 +94,22 @@
 
     <!-- MODAL -->
     <div id="modalUsuario" class="modal">
-        <div class="modal-content box">
+        <div class="modal-content">
             <h3>Novo Usuário</h3>
 
             <form onsubmit="salvarUsuario(event)">
-                <input type="text" id="u-nome" placeholder="Nome" required>
-                <input type="text" id="u-login" placeholder="Login" required>
+                <input type="text" id="u-nome" placeholder="Nome completo" required>
+                <input type="text" id="u-login" placeholder="Login/Usuário" required>
 
-                <select id="u-tipo">
+                <select id="u-tipo" required>
+                    <option value="">Selecione o tipo de acesso</option>
                     <option value="funcionario">Funcionário</option>
                     <option value="gerente">Gerente</option>
                 </select>
 
-                <button class="btn">Salvar</button>
+                <button class="btn" type="submit">
+                    <i class="fa-solid fa-check"></i> Salvar Usuário
+                </button>
             </form>
         </div>
     </div>

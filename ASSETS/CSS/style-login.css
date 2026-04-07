@@ -1,0 +1,248 @@
+@import url('https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700&display=swap');
+
+:root {
+    --primary: #c6746a;
+    --secondary: #11417b;
+    --accent: #b76756;
+    --soft: #facee1;
+    --bg-body: #ffffff;
+    --bg-content: #f8f9fa;
+    --text-main: #333333;
+    --text-muted: #666666;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: var(--bg-content);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    color: var(--text-main);
+}
+
+/* CONTAINER PRINCIPAL (Split Layout) */
+.login-wrapper {
+    display: flex;
+    width: 900px;
+    max-width: 95%;
+    min-height: 500px;
+    background-color: var(--bg-body);
+    border-radius: 20px;
+    box-shadow: 0 15px 40px rgba(17, 65, 123, 0.1);
+    overflow: hidden;
+}
+
+/* LADO ESQUERDO: BRANDING */
+.login-brand {
+    flex: 1;
+    background-color: var(--secondary);
+    color: #ffffff;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Efeitos visuais de fundo no lado esquerdo */
+.login-brand::before {
+    content: '';
+    position: absolute;
+    top: -50px;
+    left: -50px;
+    width: 200px;
+    height: 200px;
+    background: var(--primary);
+    border-radius: 50%;
+    opacity: 0.1;
+}
+
+.login-brand::after {
+    content: '';
+    position: absolute;
+    bottom: -80px;
+    right: -50px;
+    width: 250px;
+    height: 250px;
+    background: var(--soft);
+    border-radius: 50%;
+    opacity: 0.05;
+}
+
+.brand-icon {
+    font-size: 60px;
+    margin-bottom: 20px;
+    color: var(--soft);
+    z-index: 1;
+}
+
+.login-brand h1 {
+    font-size: 36px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    z-index: 1;
+}
+
+.login-brand p {
+    font-size: 16px;
+    opacity: 0.8;
+    max-width: 80%;
+    z-index: 1;
+}
+
+/* LADO DIREITO: FORMULÁRIO */
+.login-form-container {
+    flex: 1;
+    padding: 50px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.login-form-container h2 {
+    color: var(--secondary);
+    font-size: 28px;
+    margin-bottom: 5px;
+}
+
+.login-form-container>p {
+    color: var(--text-muted);
+    font-size: 14px;
+    margin-bottom: 30px;
+}
+
+/* CAMPOS DE INPUT */
+.input-group {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.input-group label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--secondary);
+    margin-bottom: 8px;
+}
+
+.input-wrapper {
+    position: relative;
+}
+
+.input-wrapper i {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    transition: color 0.3s;
+}
+
+.input-wrapper input {
+    width: 100%;
+    padding: 12px 15px 12px 45px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+    color: var(--text-main);
+    background-color: var(--bg-content);
+    transition: all 0.3s ease;
+}
+
+.input-wrapper input:focus {
+    outline: none;
+    border-color: var(--primary);
+    background-color: #fff;
+    box-shadow: 0 0 0 3px rgba(198, 116, 106, 0.1);
+}
+
+.input-wrapper input:focus+i {
+    color: var(--primary);
+}
+
+/* OPÇÕES E LINKS */
+.options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    margin-bottom: 25px;
+}
+
+.remember-me {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-muted);
+    cursor: pointer;
+}
+
+.options a {
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.2s;
+}
+
+.options a:hover {
+    color: var(--accent);
+}
+
+/* BOTÃO */
+.btn-login {
+    width: 100%;
+    padding: 14px;
+    background-color: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.btn-login:hover {
+    background-color: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(198, 116, 106, 0.3);
+}
+
+/* FOOTER DO LOGIN */
+.login-footer {
+    margin-top: 30px;
+    text-align: center;
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+/* RESPONSIVIDADE */
+@media (max-width: 768px) {
+    .login-wrapper {
+        flex-direction: column;
+        max-width: 400px;
+    }
+
+    .login-brand {
+        padding: 30px 20px;
+        min-height: 200px;
+    }
+
+    .login-form-container {
+        padding: 30px;
+    }
+}

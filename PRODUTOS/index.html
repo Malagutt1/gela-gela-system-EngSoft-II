@@ -47,7 +47,7 @@
 
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
                     <h2><i class="fa-solid fa-boxes-stacked"></i> Gerenciamento de Produtos</h2>
-                    <button class="btn" onclick="abrirModal()">
+                    <button class="btn btn-produto" onclick="abrirModal()">
                         <i class="fa-solid fa-plus"></i> Novo Produto
                     </button>
                 </div>
@@ -73,8 +73,12 @@
                                     <td><strong class="badge ok">35 kg</strong></td>
                                     <td>15/06/2026</td>
                                     <td>
-                                        <button class="btn-icon"><i class="fa-solid fa-pen"></i></button>
-                                        <button class="btn-icon danger"><i class="fa-solid fa-trash"></i></button>
+                                        <button class="btn-icon btn-editar" onclick="editarProduto(this)">
+                                            <i class="fa-solid fa-pen"></i>
+                                        </button>
+                                        <button class="btn-icon danger btn-deletar" onclick="excluirProduto(this)">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </button>
                                     </td>
                                 </tr>
                                 <tr>
@@ -84,8 +88,12 @@
                                     <td><strong class="badge ok">35 kg</strong></td>
                                     <td>10/07/2026</td>
                                     <td>
-                                        <button class="btn-icon"><i class="fa-solid fa-pen"></i></button>
-                                        <button class="btn-icon danger"><i class="fa-solid fa-trash"></i></button>
+                                        <button class="btn-icon btn-editar" onclick="editarProduto(this)">
+                                            <i class="fa-solid fa-pen"></i>
+                                        </button>
+                                        <button class="btn-icon danger btn-deletar" onclick="excluirProduto(this)">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </button>
                                     </td>
                                 </tr>
                                 <tr>
@@ -95,8 +103,12 @@
                                     <td><strong class="badge warn">25 kg</strong></td>
                                     <td>20/05/2026</td>
                                     <td>
-                                        <button class="btn-icon"><i class="fa-solid fa-pen"></i></button>
-                                        <button class="btn-icon danger"><i class="fa-solid fa-trash"></i></button>
+                                        <button class="btn-icon btn-editar" onclick="editarProduto(this)">
+                                            <i class="fa-solid fa-pen"></i>
+                                        </button>
+                                        <button class="btn-icon danger btn-deletar" onclick="excluirProduto(this)">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </button>
                                     </td>
                                 </tr>
                                 <tr>
@@ -106,8 +118,12 @@
                                     <td><strong class="badge ok">5.000 un</strong></td>
                                     <td>N/A</td>
                                     <td>
-                                        <button class="btn-icon"><i class="fa-solid fa-pen"></i></button>
-                                        <button class="btn-icon danger"><i class="fa-solid fa-trash"></i></button>
+                                        <button class="btn-icon btn-editar" onclick="editarProduto(this)">
+                                            <i class="fa-solid fa-pen"></i>
+                                        </button>
+                                        <button class="btn-icon danger btn-deletar" onclick="excluirProduto(this)">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </button>
                                     </td>
                                 </tr>
                             </tbody>
@@ -138,7 +154,7 @@
                                 </div>
                                 <div class="form-group">
                                     <label>Preço Venda</label>
-                                    <input type="number" id="p-venda" step="0.01">
+                                    <input type="number" id="p-venda" step="0.01" id="campo-preco">
                                 </div>
                                 <div class="form-group">
                                     <label>Qtd. Inicial</label>
@@ -158,9 +174,9 @@
                                 </div>
                             </div>
                             <div style="margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end;">
-                                <button type="button" class="btn btn-secondary"
+                                <button type="button" class="btn btn-produto btn-secondary"
                                     onclick="fecharModal()">Cancelar</button>
-                                <button type="submit" class="btn">Salvar Produto</button>
+                                <button type="submit" class="btn btn-produto">Salvar Produto</button>
                             </div>
                         </form>
                     </div>

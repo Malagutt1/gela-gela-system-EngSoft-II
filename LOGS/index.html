@@ -13,7 +13,7 @@
 
     <div class="layout">
 
-        <aside class="sidebar">
+        <aside class="sidebar" id="sidebar">
             <div class="logo-area">
                 <img src="../ASSETS/IMG/icon.png">
                 <span>Gela-Gela</span>
@@ -36,6 +36,9 @@
         <main class="content">
 
             <header class="topbar">
+                <button class="menu-btn" onclick="toggleSidebar()">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
                 <h1>Logs do Sistema</h1>
             </header>
 
@@ -63,7 +66,7 @@
                         </select>
                     </div>
 
-                    <button class="btn-primary">
+                    <button class="btn-primary" onclick="filtrarLogs()">
                         <i class="fa fa-search"></i> Filtrar
                     </button>
 
