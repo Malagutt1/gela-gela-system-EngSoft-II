@@ -23,8 +23,8 @@
             <nav>
                 <a href="../"><i class="fa-solid fa-cart-shopping"></i> Nova Venda</a>
                 <a href="../DASHBOARD/"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
-                <a href="../PRODUTOS/"><i class="fa-solid fa-boxes-stacked"></i> Produtos</a>
-                <a href="../CLIENTES/"><i class="fa-solid fa-users"></i> Clientes</a>
+                <a href="produto"><i class="fa-solid fa-boxes-stacked"></i> Produtos</a>
+                <a href="cliente"><i class="fa-solid fa-users"></i> Clientes</a>
                 <a href="../FORNECEDORES/"><i class="fa-solid fa-truck"></i> Fornecedores</a>
                 <a href="../PROMO/"><i class="fa-solid fa-tags"></i> Promoções</a>
                 <a href="../USUARIO/"><i class="fa-solid fa-user-shield"></i> Usuários</a>
