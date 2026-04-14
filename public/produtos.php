@@ -22,16 +22,16 @@
             </div>
 
             <nav>
-                <a href="../"><i class="fa-solid fa-cart-shopping"></i> Nova Venda</a>
-                <a href="../DASHBOARD/"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
-                <a href="./" class="active"><i class="fa-solid fa-boxes-stacked"></i> Produtos</a>
-                <a href="../CLIENTES/"><i class="fa-solid fa-users"></i> Clientes</a>
-                <a href="../FORNECEDORES/"><i class="fa-solid fa-truck"></i> Fornecedores</a>
-                <a href="../PROMO/"><i class="fa-solid fa-tags"></i> Promoções</a>
-                <a href="../USUARIO/"><i class="fa-solid fa-user-shield"></i> Usuários</a>
-                <a href="../BACKUP/"><i class="fa-solid fa-database"></i> Backup</a>
-                <a href="../LOGS/"><i class="fa-solid fa-file-lines"></i> Logs</a>
-                <a href="../RELATORIO/"><i class="fa-solid fa-chart-pie"></i> Relatórios</a>
+                <a href="vendas"><i class="fa-solid fa-cart-shopping"></i> Nova Venda</a>
+                <a href="dashboard"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
+                <a href="produtos"  class="active"><i class="fa-solid fa-boxes-stacked"></i> Produtos</a>
+                <a href="clientes"><i class="fa-solid fa-users"></i> Clientes</a>
+                <a href="fornecedores"><i class="fa-solid fa-truck"></i> Fornecedores</a>
+                <a href="promo"><i class="fa-solid fa-tags"></i> Promoções</a>
+                <a href="user"><i class="fa-solid fa-user-shield"></i> Usuários</a>
+                <a href="backup"><i class="fa-solid fa-database"></i> Backup</a>
+                <a href="logs"><i class="fa-solid fa-file-lines"></i> Logs</a>
+                <a href="relatorio"><i class="fa-solid fa-chart-pie"></i> Relatórios</a>
             </nav>
         </aside>
 
