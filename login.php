@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gela-Gela | Acesso ao Sistema</title>
     <link rel="stylesheet" href="ASSETS/CSS/style-login.css">
+   <link rel="icon" type="image/png" href="https://img.icons8.com/ios-filled/50/ff4d7d/ice-cream-bowl.png">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
@@ -19,8 +20,21 @@
         <div class="login-form-container">
             <h2>Bem-vindo de volta!</h2>
             <p>Insira suas credenciais para acessar o painel.</p>
+            <?php
+            // ====================== MENSAGENS DE ERRO ======================
+            if (isset($_GET['erro'])) {
+                if ($_GET['erro'] == '1') {
+                    echo '<div class="alert error">Usuário ou senha incorretos!</div>';
+                } elseif ($_GET['erro'] == '2') {
+                    echo '<div class="alert error">Preencha todos os campos!</div>';
+                }
+            }
+            if (isset($_GET['sucesso']) && $_GET['sucesso'] == '1') {
+                echo '<div class="alert success">Login realizado com sucesso!</div>';
+            }
+            ?>
 
-            <form method="POST" action="">
+            <form method="POST" action="login_processa.php">
                 
                 <div class="input-group">
                     <label for="usuario">Usuário ou E-mail</label>

@@ -1,0 +1,57 @@
+# ==================== SEGURANÇA ====================
+RewriteEngine On
+
+# Define a base como a sua pasta do projeto para o Apache não se perder no Windows
+RewriteBase /gela-gela-system-EngSoft-II/
+
+# 1. Remover extensão .php das URLs
+# Mudamos %{DOCUMENT_ROOT} para refletir a pasta do projeto corretamente
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME}.php -f
+RewriteRule ^([^\.]+)$ $1.php [NC,L]
+
+# 2. Remover extensão .html das URLs
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME}.html -f
+RewriteRule ^([^\.]+)$ $1.html [NC,L]
+
+# ==================== ACESSO ÀS PASTAS ====================
+# Bloquear acesso direto a arquivos sensíveis
+<FilesMatch "\.(env|json|sql|backup|log)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# ==================== REDIRECIONAMENTO ====================
+# Define o login.php como o arquivo padrão
+DirectoryIndex login.php index.php index.html
+
+# Se acessar a raiz do projeto, abre o login.php
+RewriteRule ^$ login.php [QSA,L]
+
+# Se acessar uma pasta sem barra (ex: /vendas), adiciona a barra (/vendas/)
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteCond %{REQUEST_URI} !/$
+RewriteRule ^(.*)$ $1/ [L,R=301]
+
+# ==================== CACHE & PERFORMANCE ====================
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresDefault "access plus 1 month"
+    ExpiresByType text/html "access plus 1 hour"
+</IfModule>
+
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript
+</IfModule>
+
+# ==================== HEADERS DE SEGURANÇA ====================
+<IfModule mod_headers.c>
+    Header set X-UA-Compatible "IE=edge"
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set X-XSS-Protection "1; mode=block"
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
