@@ -1,13 +1,24 @@
+<?php
+session_start();
+
+if (isset($_SESSION['logado']) && $_SESSION['logado'] === true) {
+    header('Location: vendas');
+    exit();
+}
+?>
+
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gela-Gela | Acesso ao Sistema</title>
     <link rel="stylesheet" href="ASSETS/CSS/style-login.css">
-   <link rel="icon" type="image/png" href="https://img.icons8.com/ios-filled/50/ff4d7d/ice-cream-bowl.png">
+    <link rel="icon" type="image/png" href="https://img.icons8.com/ios-filled/50/ff4d7d/ice-cream-bowl.png">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
+
 <body>
 
     <div class="login-wrapper">
@@ -35,7 +46,7 @@
             ?>
 
             <form method="POST" action="login_processa.php">
-                
+
                 <div class="input-group">
                     <label for="usuario">Usuário ou E-mail</label>
                     <div class="input-wrapper">
@@ -72,4 +83,5 @@
     </div>
 
 </body>
+
 </html>

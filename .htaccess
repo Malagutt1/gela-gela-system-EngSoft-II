@@ -4,18 +4,32 @@ RewriteEngine On
 # Define a base como a sua pasta do projeto para o Apache não se perder no Windows
 RewriteBase /gela-gela-system-EngSoft-II/
 
-# 1. Remover extensão .php das URLs
+# ==================== ROTAS RECLAME ALI ====================
+RewriteRule ^reclameAli/?$ public/reclameali.php?tipo=Reclamacao [L,QSA]
+RewriteRule ^reclameAli/reclamacoes/?$ public/reclameali.php?tipo=Reclamacao [L,QSA]
+RewriteRule ^reclameAli/sugestoes/?$ public/reclameali.php?tipo=Sugestao [L,QSA]
+RewriteRule ^reclameAli/elogios/?$ public/reclameali.php?tipo=Elogio [L,QSA]
+RewriteRule ^reclameAli/duvidas/?$ public/reclameali.php?tipo=Duvida [L,QSA]
+
+# ==================== REMOVER EXTENSÃO .PHP ====================
 # Mudamos %{DOCUMENT_ROOT} para refletir a pasta do projeto corretamente
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteCond %{REQUEST_FILENAME}.php -f
-RewriteRule ^([^\.]+)$ $1.php [NC,L]
+RewriteCond %{DOCUMENT_ROOT}/gela-gela-system-EngSoft-II/public/$1.php -f
+RewriteRule ^(.+)$ public/$1.php [NC,L]
 
-# 2. Remover extensão .html das URLs
+# ==================== ROTEAMENTO GERAL PARA PASTA PUBLIC ====================
+# FICA DEPOIS AGORA
+RewriteCond %{REQUEST_URI} !^/public/
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteCond %{REQUEST_FILENAME}.html -f
-RewriteRule ^([^\.]+)$ $1.html [NC,L]
+RewriteRule ^(.*)$ public/$1 [L,QSA]
+
+# ==================== REDIRECIONAMENTO ====================
+DirectoryIndex login.php index.php index.html
+
+# AJUSTADO PRA APONTAR PRA PUBLIC
+RewriteRule ^$ public/login.php [QSA,L]
 
 # ==================== ACESSO ÀS PASTAS ====================
 # Bloquear acesso direto a arquivos sensíveis
@@ -24,14 +38,7 @@ RewriteRule ^([^\.]+)$ $1.html [NC,L]
     Deny from all
 </FilesMatch>
 
-# ==================== REDIRECIONAMENTO ====================
-# Define o login.php como o arquivo padrão
-DirectoryIndex login.php index.php index.html
-
-# Se acessar a raiz do projeto, abre o login.php
-RewriteRule ^$ login.php [QSA,L]
-
-# Se acessar uma pasta sem barra (ex: /vendas), adiciona a barra (/vendas/)
+# ==================== SLASH FINAL ====================
 RewriteCond %{REQUEST_FILENAME} -d
 RewriteCond %{REQUEST_URI} !/$
 RewriteRule ^(.*)$ $1/ [L,R=301]

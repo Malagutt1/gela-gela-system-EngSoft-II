@@ -1,6 +1,6 @@
 <?php
 session_start();
-include 'conecta.php';
+require_once __DIR__ . '/../conecta.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header("Location: login.php");

@@ -345,26 +345,6 @@ tbody tr:hover td {
     color: var(--secondary);
 }
 
-tbody tr::after {
-    content: "Visualizar Detalhes";
-    position: absolute;
-    right: 20px;
-    top: 50%;
-    transform: translateY(-50%);
-    background: var(--primary);
-    color: white;
-    padding: 4px 10px;
-    border-radius: 4px;
-    font-size: 11px;
-    opacity: 0;
-    transition: opacity 0.2s ease;
-    pointer-events: none;
-}
-
-tbody tr:hover::after {
-    opacity: 1;
-}
-
 /* LISTAS */
 .list {
     list-style: none;
