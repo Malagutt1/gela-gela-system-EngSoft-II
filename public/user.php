@@ -1,3 +1,9 @@
+<?php 
+session_start();
+require_once '../conecta.php';
+
+?>
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 
