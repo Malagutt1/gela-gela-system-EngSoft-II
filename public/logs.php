@@ -6,7 +6,7 @@
     <title>Gela-Gela | Logs</title>
     <link rel="icon" type="image/png" href="https://img.icons8.com/ios-filled/50/ff4d7d/ice-cream-bowl.png">
 
-    <link rel="stylesheet" href="../ASSETS/CSS/style.css">
+    <link rel="stylesheet" href="ASSETS/CSS/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 
@@ -16,7 +16,7 @@
 
         <aside class="sidebar" id="sidebar">
             <div class="logo-area">
-                <img src="../ASSETS/IMG/icon.png">
+                <img src="ASSETS/IMG/icon.png">
                 <span>Gela-Gela</span>
             </div>
 
@@ -119,7 +119,7 @@
         </main>
     </div>
 
-    <script src="../ASSETS/JS/app.js"></script>
+    <script src="ASSETS/JS/sidebar.js"></script>
 
 </body>
 
