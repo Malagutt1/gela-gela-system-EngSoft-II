@@ -69,9 +69,9 @@ require_once '../conecta.php';
 
                         <tbody id="tabela-usuarios">
                             <tr>
-                                <td>Admin</td>
-                                <td>admin</td>
-                                <td><span class="badge danger">Gerente</span></td>
+                                <td>Admin-TDS</td>
+                                <td>admin-TDS</td>
+                                <td><span class="badge danger">Gerentes</span></td>
                                 <td>
                                     <button class="btn-icon"><i class="fa fa-pen"></i></button>
                                     <button class="btn-icon danger" onclick="excluirUsuario(this)">
@@ -81,9 +81,9 @@ require_once '../conecta.php';
                             </tr>
 
                             <tr>
-                                <td>João</td>
-                                <td>joao</td>
-                                <td><span class="badge ok">Funcionário</span></td>
+                                <td>Kauã Malagutti</td>
+                                <td>kaua</td> 
+                                <td><span class="badge ok">Gerente</span></td>
                                 <td>
                                     <button class="btn-icon"><i class="fa fa-pen"></i></button>
                                     <button class="btn-icon danger" onclick="excluirUsuario(this)">
@@ -91,6 +91,139 @@ require_once '../conecta.php';
                                     </button>
                                 </td>
                             </tr>
+
+                            <tr>
+                                <td>Arthur Moro </td>
+                                <td>arthur</td> 
+                                <td><span class="badge ok">Funcionario</span></td>
+                                <td>
+                                    <button class="btn-icon"><i class="fa fa-pen"></i></button>
+                                    <button class="btn-icon danger" onclick="excluirUsuario(this)">
+                                        <i class="fa fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td>Arthur Moro </td>
+                                <td>arthur</td> 
+                                <td><span class="badge ok">Funcionario</span></td>
+                                <td>
+                                    <button class="btn-icon"><i class="fa fa-pen"></i></button>
+                                    <button class="btn-icon danger" onclick="excluirUsuario(this)">
+                                        <i class="fa fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td>Francisco Lessa</td>
+                                <td>francisco</td> 
+                                <td><span class="badge ok">Funcionario</span></td>
+                                <td>
+                                    <button class="btn-icon"><i class="fa fa-pen"></i></button>
+                                    <button class="btn-icon danger" onclick="excluirUsuario(this)">
+                                        <i class="fa fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td>Luigi Pretto</td>
+                                <td>luigi</td> 
+                                <td><span class="badge ok">Funcionario</span></td>
+                                <td>
+                                    <button class="btn-icon"><i class="fa fa-pen"></i></button>
+                                    <button class="btn-icon danger" onclick="excluirUsuario(this)">
+                                        <i class="fa fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td>Taynan Brighenti</td>
+                                <td>taynan</td> 
+                                <td><span class="badge ok">Funcionario</span></td>
+                                <td>
+                                    <button class="btn-icon"><i class="fa fa-pen"></i></button>
+                                    <button class="btn-icon danger" onclick="excluirUsuario(this)">
+                                        <i class="fa fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td>Samuel Boita </td>
+                                <td>samuel</td> 
+                                <td><span class="badge ok">Funcionario</span></td>
+                                <td>
+                                    <button class="btn-icon"><i class="fa fa-pen"></i></button>
+                                    <button class="btn-icon danger" onclick="excluirUsuario(this)">
+                                        <i class="fa fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td>Pedro</td>
+                                <td>pedro</td> 
+                                <td><span class="badge ok">Funcionario</span></td>
+                                <td>
+                                    <button class="btn-icon"><i class="fa fa-pen"></i></button>
+                                    <button class="btn-icon danger" onclick="excluirUsuario(this)">
+                                        <i class="fa fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td>Rikelme</td>
+                                <td>rikelme</td> 
+                                <td><span class="badge ok">Funcionario</span></td>
+                                <td>
+                                    <button class="btn-icon"><i class="fa fa-pen"></i></button>
+                                    <button class="btn-icon danger" onclick="excluirUsuario(this)">
+                                        <i class="fa fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td>Victor</td>
+                                <td>victor</td> 
+                                <td><span class="badge ok">Funcionario</span></td>
+                                <td>
+                                    <button class="btn-icon"><i class="fa fa-pen"></i></button>
+                                    <button class="btn-icon danger" onclick="excluirUsuario(this)">
+                                        <i class="fa fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td>Lucas</td>
+                                <td>lucas</td> 
+                                <td><span class="badge ok">Funcionario</span></td>
+                                <td>
+                                    <button class="btn-icon"><i class="fa fa-pen"></i></button>
+                                    <button class="btn-icon danger" onclick="excluirUsuario(this)">
+                                        <i class="fa fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td>David</td>
+                                <td>david</td> 
+                                <td><span class="badge ok">Funcionario</span></td>
+                                <td>
+                                    <button class="btn-icon"><i class="fa fa-pen"></i></button>
+                                    <button class="btn-icon danger" onclick="excluirUsuario(this)">
+                                        <i class="fa fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+
                         </tbody>
                     </table>
                 </div>
@@ -121,7 +254,7 @@ require_once '../conecta.php';
         </div>
     </div>
 
-    <script src="ASSETS/JS/sidebar.js"></script>
+    <script src="ASSETS/JS/app.js"></script>
 
 </body>
 

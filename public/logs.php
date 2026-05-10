@@ -58,8 +58,8 @@ require_once '../conecta.php';
                         <label>Usuário:</label>
                         <select>
                             <option>Todos</option>
-                            <option>admin</option>
-                            <option>joao</option>
+                            <option>admin-TDS</option>
+                            <option>Victor</option>
                         </select>
                     </div>
 
@@ -125,7 +125,7 @@ require_once '../conecta.php';
         </main>
     </div>
 
-    <script src="ASSETS/JS/sidebar.js"></script>
+    <script src="ASSETS/JS/app.js"></script>
 
 </body>
 

@@ -1,9 +1,3 @@
-<?php 
-session_start();
-require_once '../conecta.php';
-
-?>
-
 <?php
 require_once __DIR__ . '/../conecta.php';
 session_start();

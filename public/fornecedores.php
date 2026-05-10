@@ -84,8 +84,98 @@ require_once '../conecta.php';
                             <tbody id="tabela-fornecedores">
 
                                 <tr>
-                                    <td>Distribuidora Sul</td>
-                                    <td>(49) 99911-2233</td>
+                                    <td>Eskimó Sorvetes - Distribuidora Chapecó</td>
+                                    <td>(49) 3323-0188 </td>
+                                    <td><span class="tag-resumo">Sorvete</span></td>
+                                    <td>1 dias</td>
+                                    <td>
+                                        <button class="btn-icon">
+                                            <i class="fa-solid fa-pen"></i>
+                                        </button>
+                                        <button class="btn-icon danger" onclick="excluirFornecedor(this)">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                
+                                <tr>
+                                    <td>Sorvetes Jojo</td>
+                                    <td>(49) 3322-0348</td>
+                                    <td><span class="tag-resumo">Sorvete</span></td>
+                                    <td>2 dias</td>
+                                    <td>
+                                        <button class="btn-icon">
+                                            <i class="fa-solid fa-pen"></i>
+                                        </button>
+                                        <button class="btn-icon danger" onclick="excluirFornecedor(this)">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td>Duas Rodas (Selecta/Specialitá) - Regional</td>
+                                    <td>0800-707-9500 </td>
+                                    <td><span class="tag-resumo">Insumos</span></td>
+                                    <td>5 dias</td>
+                                    <td>
+                                        <button class="btn-icon">
+                                            <i class="fa-solid fa-pen"></i>
+                                        </button>
+                                        <button class="btn-icon danger" onclick="excluirFornecedor(this)">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td>Celeiro Supermercados (Atacarejo)</td>
+                                    <td>(49) 3361-5000</td>
+                                    <td><span class="tag-resumo">Adicionais</span></td>
+                                    <td>1 dias</td>
+                                    <td>
+                                        <button class="btn-icon">
+                                            <i class="fa-solid fa-pen"></i>
+                                        </button>
+                                        <button class="btn-icon danger" onclick="excluirFornecedor(this)">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td>Eskimó Sorvetes - Distribuidora Chapecó</td>
+                                    <td>(49) 3323-0188 </td>
+                                    <td><span class="tag-resumo">Sorvete</span></td>
+                                    <td>1 dias</td>
+                                    <td>
+                                        <button class="btn-icon">
+                                            <i class="fa-solid fa-pen"></i>
+                                        </button>
+                                        <button class="btn-icon danger" onclick="excluirFornecedor(this)">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td>Gatamel Distribuidora de Doces</td>
+                                    <td>(49) 3323-3331 </td>
+                                    <td><span class="tag-resumo">Adicionais</span></td>
+                                    <td>2 dias</td>
+                                    <td>
+                                        <button class="btn-icon">
+                                            <i class="fa-solid fa-pen"></i>
+                                        </button>
+                                        <button class="btn-icon danger" onclick="excluirFornecedor(this)">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td>Brasitália Máquinas e Insumos  </td>
+                                    <td>(49) 3331-1050</td>
                                     <td><span class="tag-resumo">Insumos</span></td>
                                     <td>3 dias</td>
                                     <td>
@@ -98,11 +188,41 @@ require_once '../conecta.php';
                                     </td>
                                 </tr>
 
-                                <tr>
-                                    <td>FrioGel Sorvetes</td>
-                                    <td>(49) 98877-6655</td>
-                                    <td><span class="tag-resumo">Sorvetes</span></td>
-                                    <td>5 dias</td>
+                                 <tr>
+                                    <td>Copapel Higiene e Limpeza</td>
+                                    <td>(49) 3319-9700 </td>
+                                    <td><span class="tag-resumo">Embalagem</span></td>
+                                    <td>1 dias</td>
+                                    <td>
+                                        <button class="btn-icon">
+                                            <i class="fa-solid fa-pen"></i>
+                                        </button>
+                                        <button class="btn-icon danger" onclick="excluirFornecedor(this)">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+
+                                 <tr>
+                                    <td>Sul Embalagens</td>
+                                    <td>(49) 3322-2434</td>
+                                    <td><span class="tag-resumo"> Embalagem</span></td>
+                                    <td>2 dias</td>
+                                    <td>
+                                        <button class="btn-icon">
+                                            <i class="fa-solid fa-pen"></i>
+                                        </button>
+                                        <button class="btn-icon danger" onclick="excluirFornecedor(this)">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+
+                                 <tr>
+                                    <td>Oeste Embalagens</td>
+                                    <td>(49) 3322-0056</td>
+                                    <td><span class="tag-resumo">Embalagem</span></td>
+                                    <td>2 dias</td>
                                     <td>
                                         <button class="btn-icon">
                                             <i class="fa-solid fa-pen"></i>
@@ -160,7 +280,7 @@ require_once '../conecta.php';
         </div>
     </div>
 
-    <script src="ASSETS/JS/sidebar.js"></script>
+    <script src="ASSETS/JS/app.js"></script>
 </body>
 
 </html>
