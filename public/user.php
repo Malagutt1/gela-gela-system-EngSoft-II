@@ -254,6 +254,7 @@ require_once '../conecta.php';
         </div>
     </div>
 
+    <script src="ASSETS/JS/sidebar.js"></script>
     <script src="ASSETS/JS/app.js"></script>
 
 </body>
