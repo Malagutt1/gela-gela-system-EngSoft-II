@@ -103,7 +103,7 @@ require_once '../conecta.php';
 
                             <tr>
                                 <td>31/03/2026 11:30</td>
-                                <td>joao</td>
+                                <td>victor</td>
                                 <td><span class="badge warn">Venda</span></td>
                                 <td>Venda realizada</td>
                             </tr>

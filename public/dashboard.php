@@ -144,13 +144,13 @@ require_once '../conecta.php';
                         <div class="box">
                             <h3><i class="fa-solid fa-bolt"></i> Ações Rápidas</h3>
                             <div class="actions">
-                                <button class="btn" onclick="location.href='../'">
+                                <button class="btn" onclick="location.href='vendas'">
                                     <i class="fa-solid fa-cart-plus"></i> Registrar Nova Venda
                                 </button>
-                                <button class="btn btn-secondary" onclick="location.href='../PRODUTOS/'">
+                                <button class="btn btn-secondary" onclick="location.href='produtos'">
                                     <i class="fa-solid fa-box-open"></i> Receber Mercadoria
                                 </button>
-                                <button class="btn btn-secondary" onclick="location.href='../RELATORIO/'">
+                                <button class="btn btn-secondary" onclick="location.href='relatorio'">
                                     <i class="fa-solid fa-file-pdf"></i> Gerar Relatório (PDF)
                                 </button>
                             </div>

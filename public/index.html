@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gela-Gela | Sistema Interno</title>
+    <link rel="icon" type="image/png" href="ASSETS/IMG/icon.png">
+
+    <link rel="stylesheet" href="ASSETS/CSS/style-login.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', sans-serif;
+
+            background:
+                radial-gradient(circle at top left, rgba(198, 116, 106, .15), transparent 30%),
+                radial-gradient(circle at bottom right, rgba(17, 65, 123, .10), transparent 35%),
+                linear-gradient(135deg, #f7fbff 0%, #eef4fb 45%, #fff6f8 100%);
+        }
+
+        .index-wrapper {
+            width: 900px;
+            max-width: 92%;
+
+            background: rgba(255, 255, 255, 0.78);
+            backdrop-filter: blur(18px);
+
+            border: 1px solid rgba(255, 255, 255, 0.4);
+
+            border-radius: 28px;
+
+            padding: 70px 50px;
+
+            box-shadow:
+                0 20px 60px rgba(17, 65, 123, .10),
+                0 8px 30px rgba(0, 0, 0, .06);
+
+            text-align: center;
+
+            position: relative;
+            overflow: hidden;
+        }
+
+        .index-wrapper::before {
+            content: '';
+
+            position: absolute;
+
+            width: 300px;
+            height: 300px;
+
+            background: rgba(198, 116, 106, .08);
+
+            border-radius: 50%;
+
+            top: -120px;
+            right: -120px;
+        }
+
+        .logo-index {
+            width: 190px;
+            margin-bottom: 25px;
+
+            filter:
+                drop-shadow(0 10px 25px rgba(198, 116, 106, .15));
+
+            position: relative;
+            z-index: 2;
+        }
+
+        .index-content h1 {
+            font-size: 4rem;
+            margin: 0;
+
+            color: #163a68;
+
+            font-weight: 800;
+
+            letter-spacing: -2px;
+        }
+
+        .slogan {
+            margin-top: 10px;
+            margin-bottom: 45px;
+
+            color: #c6746a;
+
+            font-size: .95rem;
+
+            text-transform: uppercase;
+
+            letter-spacing: 4px;
+
+            font-weight: 700;
+        }
+
+        .btn-entrar {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+
+            padding: 18px 38px;
+
+            border-radius: 14px;
+
+            text-decoration: none;
+
+            background:
+                linear-gradient(135deg,
+                    #c6746a 0%,
+                    #b76756 100%);
+
+            color: white;
+
+            font-weight: 700;
+
+            font-size: 1rem;
+
+            transition: .25s ease;
+
+            box-shadow:
+                0 10px 30px rgba(198, 116, 106, .25);
+        }
+
+        .btn-entrar:hover {
+            transform: translateY(-4px) scale(1.02);
+
+            box-shadow:
+                0 16px 40px rgba(198, 116, 106, .35);
+        }
+
+        .info-projeto {
+            margin-top: 55px;
+
+            padding-top: 25px;
+
+            border-top: 1px solid rgba(17, 65, 123, .08);
+
+            color: #5e6b7a;
+
+            font-size: .95rem;
+
+            line-height: 1.8;
+        }
+
+        .info-projeto strong {
+            color: #163a68;
+        }
+
+        @media (max-width: 768px) {
+            .index-wrapper {
+                padding: 50px 25px;
+            }
+
+            .logo-index {
+                width: 150px;
+            }
+
+            .index-content h1 {
+                font-size: 2.8rem;
+            }
+
+            .btn-entrar {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="index-wrapper">
+        <div class="index-content">
+            <img src="ASSETS/IMG/icon-alternativo.png" alt="Logo Gela-Gela" class="logo-index">
+
+            <h1>GELA-GELA</h1>
+            <p class="slogan">Gelou, Sorriu!</p>
+
+            <a href="login" class="btn-entrar">
+                ACESSAR O SISTEMA
+                <i class="fa-solid fa-right-to-bracket"></i>
+            </a>
+        </div>
+
+        <div class="info-projeto">
+            <p><strong>Sistema Interno de Gestão</strong></p>
+            <p>Engenharia de Software II • 2026</p>
+            <p>Equipe: Pedro, Rikelme, Victor, Lucas, David e Kauã</p>
+        </div>
+    </div>
+
+</body>
+
+</html>

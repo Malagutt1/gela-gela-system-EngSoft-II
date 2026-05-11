@@ -421,29 +421,29 @@ function filtrarLogs() {
 
     const logsPorAcao = {
         'Todos': [
-            { data: '31/03/2026 10:12', usuario: 'admin', acao: 'Cadastro', descricao: 'Produto criado' },
-            { data: '31/03/2026 11:30', usuario: 'joao', acao: 'Venda', descricao: 'Venda realizada' },
-            { data: '31/03/2026 12:05', usuario: 'admin', acao: 'Exclusão', descricao: 'Produto removido' }
+            { data: '31/03/2026 10:12', usuario: 'admin-TDS', acao: 'Cadastro', descricao: 'Produto criado' },
+            { data: '31/03/2026 11:30', usuario: 'Victor', acao: 'Venda', descricao: 'Venda realizada' },
+            { data: '31/03/2026 12:05', usuario: 'admin-TDS', acao: 'Exclusão', descricao: 'Produto removido' }
         ],
         'Cadastro': [
-            { data: '31/03/2026 10:12', usuario: 'admin', acao: 'Cadastro', descricao: 'Produto criado' }
+            { data: '31/03/2026 10:12', usuario: 'admin-TDS', acao: 'Cadastro', descricao: 'Produto criado' }
         ],
         'Exclusão': [
-            { data: '31/03/2026 12:05', usuario: 'admin', acao: 'Exclusão', descricao: 'Produto removido' }
+            { data: '31/03/2026 12:05', usuario: 'admin-TDS', acao: 'Exclusão', descricao: 'Produto removido' }
         ],
         'Venda': [
-            { data: '31/03/2026 11:30', usuario: 'joao', acao: 'Venda', descricao: 'Venda realizada' }
+            { data: '31/03/2026 11:30', usuario: 'Victor', acao: 'Venda', descricao: 'Venda realizada' }
         ]
     };
 
     const logsPorUsuario = {
         'Todos': logsPorAcao['Todos'],
-        'admin': [
-            { data: '31/03/2026 10:12', usuario: 'admin', acao: 'Cadastro', descricao: 'Produto criado' },
-            { data: '31/03/2026 12:05', usuario: 'admin', acao: 'Exclusão', descricao: 'Produto removido' }
+        'admin-TDS': [
+            { data: '31/03/2026 10:12', usuario: 'admin-TDS', acao: 'Cadastro', descricao: 'Produto criado' },
+            { data: '31/03/2026 12:05', usuario: 'admin-TDS', acao: 'Exclusão', descricao: 'Produto removido' }
         ],
-        'joao': [
-            { data: '31/03/2026 11:30', usuario: 'joao', acao: 'Venda', descricao: 'Venda realizada' }
+        'Victor': [
+            { data: '31/03/2026 11:30', usuario: 'Victor', acao: 'Venda', descricao: 'Venda realizada' }
         ]
     };
 
@@ -584,7 +584,7 @@ function verificarNivel() {
                     <div class="block-icon"><i class="fas fa-user-shield"></i></div>
                     <h1>Acesso Restrito</h1>
                     <p>Esta área é exclusiva para <strong>Gerentes</strong>.<br>O seu nível de acesso não permite visualizar este conteúdo.</p>
-                    <a href="../" class="btn-voltar"><i class="fas fa-house-user"></i> Ir para o Início</a>
+                    <a href="vendas" class="btn-voltar"><i class="fas fa-house-user"></i> Ir para o Início</a>
                 </div>
             `;
         }

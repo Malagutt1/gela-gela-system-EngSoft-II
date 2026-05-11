@@ -83,7 +83,7 @@ require_once '../conecta.php';
                             <tr>
                                 <td>Kauã Malagutti</td>
                                 <td>kaua</td> 
-                                <td><span class="badge ok">Gerente</span></td>
+                                <td><span class="badge danger">Gerentes</span></td>
                                 <td>
                                     <button class="btn-icon"><i class="fa fa-pen"></i></button>
                                     <button class="btn-icon danger" onclick="excluirUsuario(this)">
