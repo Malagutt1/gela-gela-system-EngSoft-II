@@ -526,70 +526,7 @@ function filtrarRelatorio() {
 
 // ==================== SEGURANÇA - VERIFICAÇÃO DE NÍVEL ====================
 
-function verificarNivel() {
-    const params = new URLSearchParams(window.location.search);
-    const isGerente = params.has("gerente");
-    const pathname = window.location.pathname.toUpperCase();
 
-    console.log("Página atual detetada:", pathname);
-    console.log("É gerente?", isGerente);
-
-    if (!isGerente) {
-        document.querySelectorAll(".btn:not(.btn-venda):not(.btn-produto), .btn-icon:not(.btn-editar)").forEach(btn => {
-            btn.style.display = "none";
-        });
-
-        const paginasProibidas = ["BACKUP", "DASHBOARD", "LOGS", "PROMO", "RELATORIO", "USUARIO", "FORNECEDOR"];
-        const deveBloquear = paginasProibidas.some(p => pathname.includes(p));
-
-        if (deveBloquear) {
-            document.body.innerHTML = `
-                <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-                <style>
-                    @import url('https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700&display=swap');
-                    body {
-                        margin: 0; padding: 0; height: 100vh;
-                        display: flex; justify-content: center; align-items: center;
-                        background-color: #f8f9fa;
-                        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                    }
-                    .block-card {
-                        background: #ffffff;
-                        padding: 40px 30px;
-                        border-radius: 16px;
-                        box-shadow: 0 15px 35px rgba(17, 65, 123, 0.1);
-                        text-align: center;
-                        max-width: 420px;
-                        width: 90%;
-                        border-top: 6px solid #e74c3c;
-                        animation: popIn 0.4s ease-out forwards;
-                    }
-                    @keyframes popIn {
-                        0% { transform: scale(0.9); opacity: 0; }
-                        100% { transform: scale(1); opacity: 1; }
-                    }
-                    .block-icon { font-size: 60px; color: #e74c3c; margin-bottom: 20px; }
-                    .block-card h1 { color: #11417b; font-size: 26px; margin-bottom: 10px; margin-top: 0; }
-                    .block-card p { color: #666666; font-size: 15px; line-height: 1.5; margin-bottom: 30px; }
-                    .btn-voltar {
-                        display: inline-flex; align-items: center; justify-content: center;
-                        gap: 10px; padding: 12px 25px;
-                        background-color: #11417b; color: white;
-                        text-decoration: none; border-radius: 8px;
-                        font-weight: 600; transition: all 0.3s ease;
-                    }
-                    .btn-voltar:hover { background-color: #b76756; transform: translateY(-2px); }
-                </style>
-                <div class="block-card">
-                    <div class="block-icon"><i class="fas fa-user-shield"></i></div>
-                    <h1>Acesso Restrito</h1>
-                    <p>Esta área é exclusiva para <strong>Gerentes</strong>.<br>O seu nível de acesso não permite visualizar este conteúdo.</p>
-                    <a href="vendas" class="btn-voltar"><i class="fas fa-house-user"></i> Ir para o Início</a>
-                </div>
-            `;
-        }
-    }
-}
 
 // ==================== INICIALIZAÇÃO ====================
 
