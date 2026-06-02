@@ -7,6 +7,7 @@ if (!isset($_SESSION['logado']) || $_SESSION['logado'] !== true) {
     exit();
 }
 
+
 $nome_usuario = $_SESSION['nome'] ?? 'User';
 $inicial = strtoupper(substr($nome_usuario, 0, 1));
 

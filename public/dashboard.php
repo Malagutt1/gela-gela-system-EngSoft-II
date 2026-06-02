@@ -1,12 +1,16 @@
 <?php 
 session_start();
 require_once '../conecta.php';
-require_once 'auth_gerente.php';
 
 if (!isset($_SESSION['logado']) || $_SESSION['logado'] !== true) {
     header('Location: login');
     exit();
 }
+if (!isset($_SESSION['tipo']) || $_SESSION['tipo'] !== 'Gerente') {
+    header('Location: vendas');
+    exit();
+}
+
 
 $nome_usuario = $_SESSION['nome'] ?? 'User';
 $inicial = strtoupper(substr($nome_usuario, 0, 1));
