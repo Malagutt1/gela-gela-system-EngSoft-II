@@ -39,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['nome'] = $novo_nome;
             $nome_atual = $novo_nome;
             $alterou_algo = true;
-            $mensagem = "Nome atualizado com sucesso!";
+            $mensagem = "Nome updated com sucesso!";
         } catch (PDOException $e) {
             $erro = "Erro ao atualizar o nome: " . $e->getMessage();
         }
@@ -48,16 +48,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // 2. Atualizar Senha
     if (!empty($nova_senha)) {
         if ($nova_senha === $confirmar_senha) {
-            // CORREÇÃO: Usando 'senha_hash' em vez de 'senha' (conforme o seu SQL)
             $stmt = $pdo->prepare("SELECT senha_hash FROM usuarios WHERE usuario_id = ?");
             $stmt->execute([$usuario_id]);
             $user = $stmt->fetch();
 
-            // CORREÇÃO: Verificando a coluna correta do banco
             if ($user && password_verify($senha_atual, $user['senha_hash'])) {
                 $hash_nova = password_hash($nova_senha, PASSWORD_DEFAULT);
 
-                // CORREÇÃO: Atualizando 'senha_hash'
                 $stmt = $pdo->prepare("UPDATE usuarios SET senha_hash = ? WHERE usuario_id = ?");
                 $stmt->execute([$hash_nova, $usuario_id]);
 
@@ -71,7 +68,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    // 3. Redirecionar se deu tudo certo
     if (empty($erro) && $alterou_algo) {
         $_SESSION['mensagem_sucesso'] = "Alterações salvas com sucesso!";
         header("Location: vendas");
@@ -87,273 +83,292 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gela-Gela • Meu Perfil</title>
     <link rel="icon" type="image/png" href="https://img.icons8.com/ios-filled/50/ff4d7d/ice-cream-bowl.png">
-    <link rel="stylesheet" href="ASSETS/CSS/style-perfil.css">
 
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-
+    <link rel="stylesheet" href="ASSETS/CSS/style-perfil.css">
 </head>
 
 <body>
-    <header class="header">
-        <div class="header-content">
-            <div class="brand-group">
-                <div class="brand-icon">
-                    <i class="fa-solid fa-ice-cream"></i>
-                </div>
-                <div>
-                    <span class="brand-name">Gela-Gela</span>
-                </div>
-                <span class="brand-badge"><?= htmlspecialchars($tipo_usuario) ?></span>
-            </div>
 
-            <div class="header-title-group">
-                <h1 class="page-title">Meu Perfil</h1>
-            </div>
+    <div class="dashboard-wrapper">
+        <div class="flex-grow-1">
+            <div class="profile-container">
 
-            <div class="header-nav">
-                <a href="vendas" class="btn-back-link">
-                    <i class="fa-solid fa-arrow-left"></i>
-                    <span>Voltar ao sistema</span>
-                </a>
-
-                <div class="user-widget">
-                    <div class="user-info">
-                        <p class="user-name"><?= htmlspecialchars($nome_atual) ?></p>
+                <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+                    <div class="d-flex align-items-center" style="gap: 20px;">
+                        <div style="background: var(--primary); color: white; width: 46px; height: 46px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; box-shadow: 0 4px 10px rgba(198,116,106,0.25);">
+                            <i class="fa-solid fa-ice-cream"></i>
+                        </div>
+                        <div>
+                            <h1 class="h4 mb-0 font-weight-bold" style="color: var(--secondary); letter-spacing: -0.5px;">Gela-Gela</h1>
+                            <p class="text-muted mb-0 small">Painel administrativo corporativo</p>
+                        </div>
                     </div>
-                    <div class="user-avatar">
-                        <i class="fa-solid fa-user-circle"></i>
+
+                    <a href="vendas" class="btn btn-outline d-flex align-items-center gap-2">
+                        <i class="fa-solid fa-arrow-left-long"></i>
+                        <span>Voltar ao Sistema</span>
+                    </a>
+                </div>
+
+                <?php if ($mensagem): ?>
+                    <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
+                        <i class="fa-solid fa-circle-check mr-2"></i> <?= htmlspecialchars($mensagem) ?>
+                        <button type="button" class="close" data-dismiss="alert">×</button>
                     </div>
+                <?php endif; ?>
+
+                <?php if ($erro): ?>
+                    <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+                        <i class="fa-solid fa-circle-exclamation mr-2"></i> <?= htmlspecialchars($erro) ?>
+                        <button type="button" class="close" data-dismiss="alert">×</button>
+                    </div>
+                <?php endif; ?>
+
+                <div class="row match-height">
+
+                    <div class="col-xl-4 col-lg-5 mb-4">
+                        <div class="profile-sidebar-card">
+                            <div class="avatar-circle">
+                                <i class="fa-solid fa-user-gear"></i>
+                            </div>
+                            <h2 class="h4 font-weight-bold mb-2 text-white"><?= htmlspecialchars($nome_atual) ?></h2>
+
+                            <span class="badge badge-pill px-3 py-2 mb-4" style="background: rgba(250, 206, 225, 0.2); color: var(--soft); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; font-size: 0.75rem;">
+                                <?= htmlspecialchars($tipo_usuario) ?>
+                            </span>
+
+                            <p class="mb-0 text-white-50 small text-center px-3">
+                                Última sincronização de segurança ativa. Altere seus dados ao lado.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-8 col-lg-7 mb-4">
+                        <div class="profile-card">
+                            <form method="POST" class="mb-0">
+
+                                <div class="section-header">
+                                    <i class="fa-solid fa-id-card fa-lg" style="color: var(--primary);"></i>
+                                    <h5 class="mb-0 font-weight-bold">Dados de Identificação</h5>
+                                </div>
+
+                                <div class="form-block">
+                                    <label class="input-label" for="nome">Nome Completo do Operador</label>
+                                    <input
+                                        type="text"
+                                        id="nome"
+                                        name="nome"
+                                        value="<?= htmlspecialchars($nome_atual) ?>"
+                                        maxlength="150"
+                                        required
+                                        class="input-field"
+                                        placeholder="Digite o nome completo completo">
+                                </div>
+
+                                <div class="section-header">
+                                    <i class="fa-solid fa-shield-halved fa-lg" style="color: var(--primary);"></i>
+                                    <h5 class="mb-0 font-weight-bold">Credenciais de Acesso</h5>
+                                </div>
+
+                                <div class="form-block border-bottom">
+                                    <div class="row">
+                                        <div class="col-md-12 mb-4">
+                                            <label class="input-label" for="senha_atual">Senha Atual do Sistema</label>
+                                            <div class="password-input-wrapper">
+                                                <input
+                                                    type="password"
+                                                    id="senha_atual"
+                                                    name="senha_atual"
+                                                    class="input-field"
+                                                    placeholder="••••••••">
+                                                <button type="button" class="eye-toggle-btn" onclick="togglePassword('senha_atual')">
+                                                    <i id="icon_senha_atual" class="fa-solid fa-eye"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-6 mb-3">
+                                            <label class="input-label" for="nova_senha">Nova Senha Ultra-Segura</label>
+                                            <div class="password-input-wrapper">
+                                                <input
+                                                    type="password"
+                                                    id="nova_senha"
+                                                    name="nova_senha"
+                                                    class="input-field"
+                                                    placeholder="Definir nova senha"
+                                                    oninput="updatePasswordStrength(); checkPasswordMatch();">
+                                                <button type="button" class="eye-toggle-btn" onclick="togglePassword('nova_senha')">
+                                                    <i id="icon_nova_senha" class="fa-solid fa-eye"></i>
+                                                </button>
+                                            </div>
+
+                                            <div id="strength-wrapper" class="mt-3" style="display: none;">
+                                                <div class="d-flex justify-content-between mb-1">
+                                                    <small class="text-muted font-weight-bold">Análise de Complexidade:</small>
+                                                    <small id="strength-label" class="font-weight-bold"></small>
+                                                </div>
+                                                <div class="strength-track">
+                                                    <div id="strength-bar" class="strength-bar" style="width: 0%"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-6 mb-3">
+                                            <label class="input-label" for="confirmar_senha">Confirmar Nova Senha</label>
+                                            <div class="password-input-wrapper">
+                                                <input
+                                                    type="password"
+                                                    id="confirmar_senha"
+                                                    name="confirmar_senha"
+                                                    class="input-field"
+                                                    placeholder="Repita a nova senha"
+                                                    oninput="checkPasswordMatch()">
+                                                <button type="button" class="eye-toggle-btn" onclick="togglePassword('confirmar_senha')">
+                                                    <i id="icon_confirmar_senha" class="fa-solid fa-eye"></i>
+                                                </button>
+                                            </div>
+                                            <div id="match-feedback" class="mt-2 font-weight-bold small"></div>
+                                        </div>
+                                    </div>
+
+                                    <div id="password-checklist-box" class="mt-2 p-3 bg-light rounded" style="display: none;">
+                                        <div class="text-muted font-weight-bold small mb-2">A nova senha deve conter:</div>
+                                        <div class="row">
+                                            <div class="col-sm-6 req-item text-muted" id="req-length">
+                                                <i class="fa-regular fa-circle"></i> Pelo menos 8 caracteres (+=8)
+                                            </div>
+                                            <div class="col-sm-6 req-item text-muted" id="req-case">
+                                                <i class="fa-regular fa-circle"></i> Letras Maiúsculas e Minúsculas (Mm)
+                                            </div>
+                                            <div class="col-sm-6 req-item text-muted" id="req-number">
+                                                <i class="fa-regular fa-circle"></i> Ao menos um número (Ex: 848)
+                                            </div>
+                                            <div class="col-sm-6 req-item text-muted" id="req-special">
+                                                <i class="fa-regular fa-circle"></i> Símbolo ou Especial (Ex: @, #, +, =)
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                                <div class="px-4 py-3 bg-light d-flex justify-content-end align-items-center">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fa-solid fa-floppy-disk mr-2"></i>
+                                        Salvar Configurações da Conta
+                                    </button>
+                                </div>
+
+                            </form>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </div>
-    </header>
+    </div>
 
-    <main>
-        <div class="container">
-
-            <?php if ($mensagem): ?>
-                <div class="alert alert-success" id="alert-success">
-                    <i class="fa-solid fa-circle-check alert-icon"></i>
-                    <div class="alert-message"><?= htmlspecialchars($mensagem) ?></div>
-                    <button class="alert-close" onclick="document.getElementById('alert-success').style.display='none'">&times;</button>
-                </div>
-            <?php endif; ?>
-
-            <?php if ($erro): ?>
-                <div class="alert alert-error" id="alert-error">
-                    <i class="fa-solid fa-circle-exclamation alert-icon"></i>
-                    <div class="alert-message"><?= htmlspecialchars($erro) ?></div>
-                    <button class="alert-close" onclick="document.getElementById('alert-error').style.display='none'">&times;</button>
-                </div>
-            <?php endif; ?>
-
-            <div class="profile-card">
-                <form method="POST" class="form-layout">
-
-                    <section>
-                        <div class="section-header">
-                            <i class="fa-solid fa-user section-icon"></i>
-                            <h2 class="section-title">Dados pessoais</h2>
-                        </div>
-
-                        <div class="input-group">
-                            <label class="input-label" for="nome">Nome Completo</label>
-                            <div class="input-wrapper">
-                                <input
-                                    type="text"
-                                    id="nome"
-                                    name="nome"
-                                    value="<?= htmlspecialchars($nome_atual) ?>"
-                                    maxlength="150"
-                                    required
-                                    class="input-field"
-                                    placeholder="Digite seu nome completo">
-                            </div>
-                        </div>
-                    </section>
-
-                    <div class="divider-container">
-                        <div class="divider-line"></div>
-                        <div class="divider-badge">
-                            <i class="fa-solid fa-shield-halved"></i>
-                            Segurança
-                        </div>
-                        <div class="divider-line"></div>
-                    </div>
-
-                    <section>
-                        <div class="section-header">
-                            <i class="fa-solid fa-lock section-icon"></i>
-                            <h2 class="section-title">Alterar senha</h2>
-                        </div>
-
-                        <div class="input-group">
-                            <label class="input-label" for="senha_atual">Senha Atual</label>
-                            <div class="input-wrapper">
-                                <input
-                                    type="password"
-                                    id="senha_atual"
-                                    name="senha_atual"
-                                    placeholder="••••••••••••"
-                                    class="input-field has-icon">
-                                <button type="button" class="btn-toggle-password" onclick="togglePassword('senha_atual')">
-                                    <i id="icon_senha_atual" class="fa-solid fa-eye"></i>
-                                </button>
-                            </div>
-                        </div>
-
-                        <div class="input-group">
-                            <label class="input-label" for="nova_senha">Nova Senha</label>
-                            <div class="input-wrapper">
-                                <input
-                                    type="password"
-                                    id="nova_senha"
-                                    name="nova_senha"
-                                    placeholder="Digite a nova senha"
-                                    oninput="updatePasswordStrength(); checkPasswordMatch();"
-                                    class="input-field has-icon">
-                                <button type="button" class="btn-toggle-password" onclick="togglePassword('nova_senha')">
-                                    <i id="icon_nova_senha" class="fa-solid fa-eye"></i>
-                                </button>
-                            </div>
-
-                            <div id="strength-wrapper" class="strength-container">
-                                <div class="strength-header">
-                                    <span>Força da senha</span>
-                                    <span id="strength-label" class="strength-label"></span>
-                                </div>
-                                <div class="strength-track">
-                                    <div id="strength-bar" class="strength-bar"></div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="input-group">
-                            <label class="input-label" for="confirmar_senha">Confirmar Nova Senha</label>
-                            <div class="input-wrapper">
-                                <input
-                                    type="password"
-                                    id="confirmar_senha"
-                                    name="confirmar_senha"
-                                    placeholder="Confirme a nova senha"
-                                    oninput="checkPasswordMatch()"
-                                    class="input-field has-icon">
-                                <button type="button" class="btn-toggle-password" onclick="togglePassword('confirmar_senha')">
-                                    <i id="icon_confirmar_senha" class="fa-solid fa-eye"></i>
-                                </button>
-                            </div>
-                            <div id="match-feedback" class="match-feedback"></div>
-                        </div>
-                    </section>
-
-                    <div class="actions-group">
-                        <a href="vendas" class="btn btn-outline">
-                            <i class="fa-solid fa-arrow-left"></i>
-                            Voltar para o Sistema
-                        </a>
-
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fa-solid fa-floppy-disk"></i>
-                            Salvar Alterações
-                        </button>
-                    </div>
-                </form>
-            </div>
-
-            <p class="footer-note">
-                <i class="fa-solid fa-shield-halved"></i>
-                Seus dados são protegidos por criptografia de ponta a ponta • Gela-Gela © 2026
-            </p>
-        </div>
-    </main>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-        /**
-         * Alterna a visibilidade da senha (olhinho)
-         */
         function togglePassword(id) {
             const input = document.getElementById(id);
             const icon = document.getElementById('icon_' + id);
-
-            if (!input || !icon) return;
-
             if (input.type === 'password') {
                 input.type = 'text';
-                icon.classList.remove('fa-eye');
-                icon.classList.add('fa-eye-slash');
+                icon.classList.replace('fa-eye', 'fa-eye-slash');
             } else {
                 input.type = 'password';
-                icon.classList.remove('fa-eye-slash');
-                icon.classList.add('fa-eye');
+                icon.classList.replace('fa-eye-slash', 'fa-eye');
             }
         }
 
-        /**
-         * Calcula a força da senha e atualiza a barra de progresso
-         */
         function updatePasswordStrength() {
             const password = document.getElementById('nova_senha').value;
             const wrapper = document.getElementById('strength-wrapper');
+            const checklistBox = document.getElementById('password-checklist-box');
             const bar = document.getElementById('strength-bar');
             const label = document.getElementById('strength-label');
 
             if (password.length < 1) {
-                wrapper.classList.remove('active');
+                wrapper.style.display = 'none';
+                checklistBox.style.display = 'none';
                 return;
             }
+            wrapper.style.display = 'block';
+            checklistBox.style.display = 'block';
 
-            wrapper.classList.add('active');
+            // Captura dos elementos da checklist
+            const reqLength = document.getElementById('req-length');
+            const reqCase = document.getElementById('req-case');
+            const reqNumber = document.getElementById('req-number');
+            const reqSpecial = document.getElementById('req-special');
 
+            // Regras individuais para validação visual das dicas
+            const isLengthOk = password.length >= 8;
+            const isCaseOk = /[A-Z]/.test(password) && /[a-z]/.test(password);
+            const isNumberOk = /[0-9]/.test(password);
+            const isSpecialOk = /[^A-Za-z0-9]/.test(password);
+
+            // Atualiza cada item da checklist de dicas dinamicamente
+            updateChecklistItem(reqLength, isLengthOk);
+            updateChecklistItem(reqCase, isCaseOk);
+            updateChecklistItem(reqNumber, isNumberOk);
+            updateChecklistItem(reqSpecial, isSpecialOk);
+
+            // Cálculo do score da barra
             let score = 0;
-            if (password.length >= 8) score++;
+            if (isLengthOk) score++;
             if (password.length >= 12) score++;
-            if (/[A-Z]/.test(password)) score++;
-            if (/[0-9]/.test(password)) score++;
-            if (/[^A-Za-z0-9]/.test(password)) score++;
+            if (isCaseOk) score++;
+            if (isNumberOk) score++;
+            if (isSpecialOk) score++;
 
-            const percentage = Math.min(score * 25, 100);
-
-            let colorClass = '';
-            let textClass = '';
-            let text = '';
-
-            if (score <= 1) {
-                colorClass = 'bg-danger';
-                textClass = 'text-danger';
-                text = 'Muito fraca';
-            } else if (score === 2) {
-                colorClass = 'bg-warning';
-                textClass = 'text-warning';
-                text = 'Fraca';
-            } else if (score === 3) {
-                colorClass = 'bg-info';
-                textClass = 'text-info';
-                text = 'Média';
-            } else if (score === 4) {
-                colorClass = 'bg-success';
-                textClass = 'text-success';
-                text = 'Boa';
-            } else {
-                colorClass = 'bg-primary';
-                textClass = 'text-primary';
-                text = 'Excelente';
-            }
-
-            // Limpa classes antigas e aplica as novas
-            bar.className = 'strength-bar ' + colorClass;
+            const percentage = Math.min((score * 20), 100);
             bar.style.width = percentage + '%';
 
-            label.textContent = text;
-            label.className = 'strength-label ' + textClass;
+            let colorClass = 'bg-danger';
+            let labelText = 'Muito fraca';
+            let textClass = 'text-danger';
+
+            if (score >= 5) {
+                colorClass = 'bg-success';
+                labelText = 'Excelente';
+                textClass = 'text-success';
+            } else if (score >= 4) {
+                colorClass = 'bg-primary';
+                labelText = 'Forte';
+                textClass = 'text-primary';
+            } else if (score >= 3) {
+                colorClass = 'bg-info';
+                labelText = 'Média';
+                textClass = 'text-info';
+            } else if (score >= 2) {
+                colorClass = 'bg-warning';
+                labelText = 'Fraca';
+                textClass = 'text-warning';
+            }
+
+            bar.className = `strength-bar ${colorClass}`;
+            label.textContent = labelText;
+            label.className = `font-weight-bold ${textClass}`;
         }
 
-        /**
-         * Verifica se as senhas coincidem e adiciona bordas coloridas aos inputs
-         */
+        // Função auxiliar para mudar os ícones e cores da checklist de dicas de senha
+        function updateChecklistItem(element, isValid) {
+            const icon = element.querySelector('i');
+            if (isValid) {
+                element.className = "col-sm-6 req-item text-success font-weight-bold";
+                icon.className = "fa-solid fa-circle-check";
+            } else {
+                element.className = "col-sm-6 req-item text-muted";
+                icon.className = "fa-regular fa-circle";
+            }
+        }
+
         function checkPasswordMatch() {
             const nova = document.getElementById('nova_senha').value;
             const confirmarInput = document.getElementById('confirmar_senha');
@@ -361,21 +376,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             if (confirmarInput.value.length === 0) {
                 feedback.innerHTML = '';
-                confirmarInput.classList.remove('input-error', 'input-success');
+                confirmarInput.style.borderColor = 'var(--border-light)';
                 return;
             }
 
             if (nova === confirmarInput.value) {
-                feedback.innerHTML = '<span class="text-success"><i class="fa-solid fa-check-circle"></i> Senhas coincidem perfeitamente</span>';
-                confirmarInput.classList.remove('input-error');
-                confirmarInput.classList.add('input-success');
+                feedback.innerHTML = '<i class="fa-solid fa-circle-check"></i> Senhas coincidem';
+                feedback.className = "mt-2 small text-success";
+                confirmarInput.style.borderColor = '#28a745';
             } else {
-                feedback.innerHTML = '<span class="text-danger"><i class="fa-solid fa-xmark-circle"></i> As senhas não coincidem</span>';
-                confirmarInput.classList.remove('input-success');
-                confirmarInput.classList.add('input-error');
+                feedback.innerHTML = '<i class="fa-solid fa-circle-xmark"></i> As senhas não batem';
+                feedback.className = "mt-2 small text-danger";
+                confirmarInput.style.borderColor = '#dc3545';
             }
         }
     </script>
+
 </body>
 
 </html>

@@ -1,4 +1,5 @@
 <?php
+date_default_timezone_set('America/Sao_Paulo');
 session_start();
 require_once '../conecta.php';
 
@@ -10,6 +11,9 @@ if (!isset($_SESSION['logado']) || $_SESSION['logado'] !== true) {
 // ─── Controle de acesso ───────────────────────────────────────────────
 $perfil = strtolower($_SESSION['perfil'] ?? $_SESSION['tipo'] ?? 'funcionario'); // 'gerente' ou 'funcionario'
 $is_gerente = ($perfil === 'gerente');
+
+$nome_usuario = $_SESSION['nome'] ?? 'User';
+$inicial = strtoupper(substr($nome_usuario, 0, 1));
  
 // ─── Período selecionado ──────────────────────────────────────────────
 $periodo  = $_GET['periodo']  ?? 'mes';
@@ -23,8 +27,8 @@ if (!$is_gerente && $tipo === 'financeiro') {
 // Define intervalo de datas
 switch ($periodo) {
     case 'dia':
-        $data_inicio = date('Y-m-d');
-        $data_fim    = date('Y-m-d');
+        $data_inicio = date('Y-m-d 00:00:00');
+        $data_fim    = date('Y-m-d 23:59:59');
         $label_periodo = 'Hoje (' . date('d/m/Y') . ')';
         break;
     case 'semana':
@@ -37,6 +41,7 @@ switch ($periodo) {
         $data_fim    = date('Y-m-t');
         $label_periodo = 'Este Mês (' . date('m/Y') . ')';
 }
+$tem_tabela_despesas = (bool)$pdo->query("SHOW TABLES LIKE 'despesas'")->fetchColumn();
  
 // ─── Registrar lançamento (POST) ──────────────────────────────────────
 $msg_sucesso = '';
@@ -82,9 +87,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
  
 // ─── Queries de dados ─────────────────────────────────────────────────
- 
-$tem_tabela_despesas = (bool)$pdo->query("SHOW TABLES LIKE 'despesas'")->fetchColumn();
- 
 // KPIs de Vendas
 $kpi_vendas = $pdo->prepare("
     SELECT
@@ -127,12 +129,16 @@ $lista_estoque = $pdo->query("
             WHEN e.quantidade_disponivel <= 10 THEN 'danger'
             WHEN DATEDIFF(e.validade, CURDATE()) <= 7 AND e.validade IS NOT NULL THEN 'warn'
             ELSE 'ok'
-        END AS status
+        END AS status,
+        CASE
+            WHEN e.quantidade_disponivel <= 10 THEN 3
+            WHEN DATEDIFF(e.validade, CURDATE()) <= 7 AND e.validade IS NOT NULL THEN 2
+            ELSE 1
+        END AS prioridade
     FROM estoque e
     JOIN produtos p ON e.produto_id = p.produto_id
-    ORDER BY status DESC, p.nome ASC
+    ORDER BY prioridade DESC, p.nome ASC
 ")->fetchAll(PDO::FETCH_ASSOC);
- 
 // Tabela de despesas (gerente)
 $lista_despesas = [];
 if ($is_gerente && $tem_tabela_despesas) {
@@ -174,37 +180,23 @@ function kg($v)  { return number_format($v, 2, ',', '.') . ' kg'; }
 <div class="layout">
  
     <!-- SIDEBAR -->
-    <aside class="sidebar" id="sidebar">
-        <div class="logo-area">
-            <img src="ASSETS/IMG/icon.png" alt="Logo">
-            <span>Gela-Gela</span>
-        </div>
-        <nav>
-            <?php if ($is_gerente): ?>
-            <a href="vendas"><i class="fa-solid fa-cart-shopping"></i> Nova Venda</a>
-            <?php endif; ?>
-            <a href="dashboard"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
-            <a href="produtos"><i class="fa-solid fa-boxes-stacked"></i> Produtos</a>
-            <a href="clientes"><i class="fa-solid fa-users"></i> Clientes</a>
-            <a href="fornecedores"><i class="fa-solid fa-truck"></i> Fornecedores</a>
-            <a href="promo"><i class="fa-solid fa-tags"></i> Promoções</a>
-            <a href="user"><i class="fa-solid fa-user-shield"></i> Usuários</a>
-            <a href="backup"><i class="fa-solid fa-database"></i> Backup</a>
-            <a href="logs"><i class="fa-solid fa-file-lines"></i> Logs</a>
-            <a href="relatorio" class="active"><i class="fa-solid fa-chart-pie"></i> Relatórios</a>
-        </nav>
-    </aside>
+    <?php require_once '../components/sidebar.php'; ?>
  
     <!-- CONTEÚDO -->
     <main class="content content-tab-<?= htmlspecialchars($tipo) ?>">
         <header class="topbar">
             <button class="menu-btn" onclick="toggleSidebar()"><i class="fa fa-bars"></i></button>
             <h1>Relatórios</h1>
-            <?php if ($is_gerente): ?>
-                <span style="margin-left:auto; background:var(--soft); color:var(--secondary); font-size:12px; font-weight:700; padding:5px 12px; border-radius:20px;">
-                    <i class="fa fa-shield-halved"></i> Gerente
-                </span>
-            <?php endif; ?>
+            <div class="user-menu">
+                <div class="avatar" onclick="toggleUserMenu()">
+                    <?= $inicial ?>
+                </div>
+                <div class="dropdown-user" id="userDropdown">
+                    <p><?= htmlspecialchars($nome_usuario) ?></p>
+                    <a href="perfil">Perfil</a>
+                    <a href="logout" class="logout">Sair do sistema</a>
+                </div>
+            </div>
         </header>
  
         <section class="main">
@@ -630,6 +622,28 @@ if (labels.length > 0) {
         ctx.fillText('Sem dados de vendas para o período selecionado.', canvas.width / 2, 40);
     }
 }
+
+
+        // ======================================================
+        // USER MENU
+        // ======================================================
+
+        function toggleUserMenu() {
+
+            document.getElementById('userDropdown')
+                .classList.toggle('active');
+        }
+
+        document.addEventListener('click', function(e) {
+
+            const menu = document.querySelector('.user-menu');
+
+            if (!menu.contains(e.target)) {
+
+                document.getElementById('userDropdown')
+                    .classList.remove('active');
+            }
+        });
 </script>
 </body>
 </html>

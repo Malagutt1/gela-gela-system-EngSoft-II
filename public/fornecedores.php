@@ -22,25 +22,7 @@ require_once '../conecta.php';
     <div class="layout">
 
         <!-- SIDEBAR -->
-        <aside class="sidebar" id="sidebar">
-            <div class="logo-area">
-                <img src="ASSETS/IMG/icon.png" alt="Logo">
-                <span>Gela-Gela</span>
-            </div>
-
-            <nav>
-                <a href="vendas"><i class="fa-solid fa-cart-shopping"></i> Nova Venda</a>
-                <a href="dashboard"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
-                <a href="produtos"><i class="fa-solid fa-boxes-stacked"></i> Produtos</a>
-                <a href="clientes"><i class="fa-solid fa-users"></i> Clientes</a>
-                <a href="fornecedores" class="active"><i class="fa-solid fa-truck"></i> Fornecedores</a>
-                <a href="promo"><i class="fa-solid fa-tags"></i> Promoções</a>
-                <a href="user"><i class="fa-solid fa-user-shield"></i> Usuários</a>
-                <a href="backup"><i class="fa-solid fa-database"></i> Backup</a>
-                <a href="logs"><i class="fa-solid fa-file-lines"></i> Logs</a>
-                <a href="relatorio"><i class="fa-solid fa-chart-pie"></i> Relatórios</a>
-            </nav>
-        </aside>
+        <?php require_once '../components/sidebar.php'; ?>
 
         <!-- CONTEÚDO -->
         <main class="content">
@@ -53,11 +35,6 @@ require_once '../conecta.php';
             </header>
 
             <section class="main">
-
-                <!-- ALERTA DE PERMISSÃO -->
-                <div class="box" style="margin-bottom:20px; background:#fff3cd; color:#856404;">
-                    🔒 Apenas <strong>Gerentes</strong> podem cadastrar, editar ou excluir fornecedores.
-                </div>
 
                 <!-- TOPO -->
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:25px;">

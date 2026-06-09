@@ -543,7 +543,15 @@ CREATE TABLE `promocoes` (
 INSERT INTO `promocoes` (`promocao_id`, `nome`, `descricao`, `desconto_percentual`, `desconto_valor`, `data_inicio`, `data_fim`, `ativo`, `criado_por`) VALUES
 (1, 'DIA DA FAMÍLIA', 'Promoção especial Dia da Família com 10% de desconto', 10.00, NULL, '2026-04-19', '2026-04-26', 1, 7),
 (2, 'SEGUNDA DO SORVETE', '10% de desconto em todos os sorvetes na segunda-feira', 10.00, NULL, '2026-04-20', '2026-04-27', 1, 7),
-(3, 'PROMO COMBO FAMILIA', 'Desconto de R$ 15,00 em compras acima de R$ 80,00', NULL, 15.00, '2026-04-20', '2026-05-05', 1, 7);
+(3, 'PROMO COMBO FAMILIA', 'Desconto de R$ 15,00 em compras acima de R$ 80,00', NULL, 15.00, '2026-04-20', '2026-05-05', 1, 7),
+(4, 'Sorvete de morango', 'Sorvete somente de sabor morango', 15.00, NULL, '2026-05-28', '2026-05-30', 1, 7),
+(5, 'FESTA JUNINA GELADA', '15% de desconto em todos os sorvetes durante o período junino', 15.00, NULL, '2026-06-01', '2026-06-30', 1, 7),
+(6, 'QUARTA DO CLIENTE', '5% de desconto em qualquer compra realizada às quartas-feiras', 5.00, NULL, '2026-05-01', '2026-07-07', 1, 7),
+(7, 'COMBO AMIGOS', 'Desconto de R$ 10,00 em compras acima de R$ 50,00', NULL, 10.00, '2026-05-15', '2026-07-07', 1, 7),
+(8, 'INVERNO MAIS DOCE', '20% de desconto em produtos selecionados durante o inverno', 20.00, NULL, '2026-06-21', '2026-07-07', 1, 7),
+(9, 'PIX PREMIADO', '5% de desconto para pagamentos realizados via PIX', 5.00, NULL, '2026-05-01', '2026-07-07', 1, 7),
+(10, 'FAMÍLIA FELIZ', 'Desconto de R$ 20,00 em compras acima de R$ 120,00', NULL, 20.00, '2026-06-01', '2026-07-07', 1, 7),
+(11, 'SEMANA DO CLIENTE', '12% de desconto em toda a linha de produtos', 12.00, NULL, '2026-06-29', '2026-07-07', 1, 7);
 
 -- --------------------------------------------------------
 

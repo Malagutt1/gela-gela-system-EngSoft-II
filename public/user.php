@@ -27,25 +27,7 @@ if (!isset($_SESSION['tipo']) || $_SESSION['tipo'] !== 'Gerente') {
 
     <div class="layout">
 
-        <aside class="sidebar" id="sidebar">
-            <div class="logo-area">
-                <img src="ASSETS/IMG/icon.png">
-                <span>Gela-Gela</span>
-            </div>
-
-            <nav>
-                <a href="vendas"><i class="fa-solid fa-cart-shopping"></i> Nova Venda</a>
-                <a href="dashboard"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
-                <a href="produtos"><i class="fa-solid fa-boxes-stacked"></i> Produtos</a>
-                <a href="clientes"><i class="fa-solid fa-users"></i> Clientes</a>
-                <a href="fornecedores"><i class="fa-solid fa-truck"></i> Fornecedores</a>
-                <a href="promo"><i class="fa-solid fa-tags"></i> Promoções</a>
-                <a href="user" class="active"><i class="fa-solid fa-user-shield"></i> Usuários</a>
-                <a href="backup"><i class="fa-solid fa-database"></i> Backup</a>
-                <a href="logs"><i class="fa-solid fa-file-lines"></i> Logs</a>
-                <a href="relatorio"><i class="fa-solid fa-chart-pie"></i> Relatórios</a>
-            </nav>
-        </aside>
+        <?php require_once '../components/sidebar.php'; ?>
 
         <main class="content">
 
@@ -89,7 +71,7 @@ if (!isset($_SESSION['tipo']) || $_SESSION['tipo'] !== 'Gerente') {
 
                             <tr>
                                 <td>Kauã Malagutti</td>
-                                <td>kaua</td> 
+                                <td>kaua</td>
                                 <td><span class="badge danger">Gerentes</span></td>
                                 <td>
                                     <button class="btn-icon"><i class="fa fa-pen"></i></button>
@@ -101,7 +83,7 @@ if (!isset($_SESSION['tipo']) || $_SESSION['tipo'] !== 'Gerente') {
 
                             <tr>
                                 <td>Arthur Moro </td>
-                                <td>arthur</td> 
+                                <td>arthur</td>
                                 <td><span class="badge ok">Funcionario</span></td>
                                 <td>
                                     <button class="btn-icon"><i class="fa fa-pen"></i></button>
@@ -113,7 +95,7 @@ if (!isset($_SESSION['tipo']) || $_SESSION['tipo'] !== 'Gerente') {
 
                             <tr>
                                 <td>Arthur Moro </td>
-                                <td>arthur</td> 
+                                <td>arthur</td>
                                 <td><span class="badge ok">Funcionario</span></td>
                                 <td>
                                     <button class="btn-icon"><i class="fa fa-pen"></i></button>
@@ -125,7 +107,7 @@ if (!isset($_SESSION['tipo']) || $_SESSION['tipo'] !== 'Gerente') {
 
                             <tr>
                                 <td>Francisco Lessa</td>
-                                <td>francisco</td> 
+                                <td>francisco</td>
                                 <td><span class="badge ok">Funcionario</span></td>
                                 <td>
                                     <button class="btn-icon"><i class="fa fa-pen"></i></button>
@@ -137,7 +119,7 @@ if (!isset($_SESSION['tipo']) || $_SESSION['tipo'] !== 'Gerente') {
 
                             <tr>
                                 <td>Luigi Pretto</td>
-                                <td>luigi</td> 
+                                <td>luigi</td>
                                 <td><span class="badge ok">Funcionario</span></td>
                                 <td>
                                     <button class="btn-icon"><i class="fa fa-pen"></i></button>
@@ -149,7 +131,7 @@ if (!isset($_SESSION['tipo']) || $_SESSION['tipo'] !== 'Gerente') {
 
                             <tr>
                                 <td>Taynan Brighenti</td>
-                                <td>taynan</td> 
+                                <td>taynan</td>
                                 <td><span class="badge ok">Funcionario</span></td>
                                 <td>
                                     <button class="btn-icon"><i class="fa fa-pen"></i></button>
@@ -161,7 +143,7 @@ if (!isset($_SESSION['tipo']) || $_SESSION['tipo'] !== 'Gerente') {
 
                             <tr>
                                 <td>Samuel Boita </td>
-                                <td>samuel</td> 
+                                <td>samuel</td>
                                 <td><span class="badge ok">Funcionario</span></td>
                                 <td>
                                     <button class="btn-icon"><i class="fa fa-pen"></i></button>
@@ -173,7 +155,7 @@ if (!isset($_SESSION['tipo']) || $_SESSION['tipo'] !== 'Gerente') {
 
                             <tr>
                                 <td>Pedro</td>
-                                <td>pedro</td> 
+                                <td>pedro</td>
                                 <td><span class="badge ok">Funcionario</span></td>
                                 <td>
                                     <button class="btn-icon"><i class="fa fa-pen"></i></button>
@@ -185,7 +167,7 @@ if (!isset($_SESSION['tipo']) || $_SESSION['tipo'] !== 'Gerente') {
 
                             <tr>
                                 <td>Rikelme</td>
-                                <td>rikelme</td> 
+                                <td>rikelme</td>
                                 <td><span class="badge ok">Funcionario</span></td>
                                 <td>
                                     <button class="btn-icon"><i class="fa fa-pen"></i></button>
@@ -197,7 +179,7 @@ if (!isset($_SESSION['tipo']) || $_SESSION['tipo'] !== 'Gerente') {
 
                             <tr>
                                 <td>Victor</td>
-                                <td>victor</td> 
+                                <td>victor</td>
                                 <td><span class="badge ok">Funcionario</span></td>
                                 <td>
                                     <button class="btn-icon"><i class="fa fa-pen"></i></button>
@@ -209,7 +191,7 @@ if (!isset($_SESSION['tipo']) || $_SESSION['tipo'] !== 'Gerente') {
 
                             <tr>
                                 <td>Lucas</td>
-                                <td>lucas</td> 
+                                <td>lucas</td>
                                 <td><span class="badge ok">Funcionario</span></td>
                                 <td>
                                     <button class="btn-icon"><i class="fa fa-pen"></i></button>
@@ -221,7 +203,7 @@ if (!isset($_SESSION['tipo']) || $_SESSION['tipo'] !== 'Gerente') {
 
                             <tr>
                                 <td>David</td>
-                                <td>david</td> 
+                                <td>david</td>
                                 <td><span class="badge ok">Funcionario</span></td>
                                 <td>
                                     <button class="btn-icon"><i class="fa fa-pen"></i></button>
