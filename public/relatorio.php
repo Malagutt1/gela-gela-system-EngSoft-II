@@ -86,54 +86,125 @@ function pdf_wrap_lines(string $text, int $maxChars): array {
     return $lines ?: [''];
 }
 
-function gerar_pdf_simples(string $titulo, array $linhas): void {
+function gerar_pdf_profissional(string $titulo, array $blocos): void {
     $pages = [];
-    $page = [];
-    $maxLines = 44;
+    $page = ['items' => [], 'lines' => 0];
+    $maxLines = 34;
 
-    foreach ($linhas as $linha) {
-        $wrapped = pdf_wrap_lines($linha, 95);
-        foreach ($wrapped as $wrapLine) {
-            if (count($page) >= $maxLines) {
-                $pages[] = $page;
-                $page = [];
-            }
-            $page[] = $wrapLine;
+    $pushPage = function () use (&$pages, &$page): void {
+        $pages[] = $page;
+        $page = ['items' => [], 'lines' => 0];
+    };
+
+    foreach ($blocos as $bloco) {
+        $type = $bloco['type'] ?? 'text';
+        $estimatedLines = 1;
+
+        if ($type === 'row') {
+            $estimatedLines = count(pdf_wrap_lines($bloco['text'] ?? '', 92));
+        } elseif ($type === 'meta') {
+            $estimatedLines = count(pdf_wrap_lines(($bloco['label'] ?? '') . ': ' . ($bloco['value'] ?? ''), 84));
+        } elseif ($type === 'metric') {
+            $estimatedLines = 2;
+        } elseif ($type === 'section') {
+            $estimatedLines = 2;
+        } elseif ($type === 'spacer') {
+            $estimatedLines = 1;
         }
+
+        if ($page['lines'] + $estimatedLines > $maxLines && !empty($page['items'])) {
+            $pushPage();
+        }
+
+        $page['items'][] = $bloco;
+        $page['lines'] += $estimatedLines;
     }
 
-    if (!empty($page) || empty($pages)) {
+    if (!empty($page['items']) || empty($pages)) {
         $pages[] = $page;
     }
 
     $objects = [];
     $catalogObj = 1;
     $pagesObj = 2;
-    $fontObj = 3;
-    $nextObj = 4;
+    $fontRegularObj = 3;
+    $fontBoldObj = 4;
+    $nextObj = 5;
     $kids = [];
+    $totalPages = count($pages);
 
-    foreach ($pages as $pageLines) {
-        $content = "BT\n/F1 12 Tf\n";
-        $content .= "1 0 0 1 50 790 Tm\n";
-        $content .= "14 TL\n";
-        $content .= '(' . pdf_escape_text($titulo) . ") Tj\nT*\n";
-        $content .= '(' . pdf_escape_text(str_repeat('-', 90)) . ") Tj\nT*\n";
-        foreach ($pageLines as $line) {
-            $content .= '(' . pdf_escape_text($line) . ") Tj\nT*\n";
+    foreach ($pages as $pageIndex => $pageData) {
+        $cursorY = 728;
+        $content = "q\n";
+        $content .= "0.86 0.38 0.44 rg\n0 770 595 72 re f\n";
+        $content .= "0.95 0.92 0.92 rg\n0 748 595 22 re f\n";
+        $content .= "0.97 0.97 0.97 rg\n40 694 515 24 re f\n";
+        $content .= "BT\n/F2 22 Tf\n1 1 1 rg\n50 800 Td\n(" . pdf_escape_text('Gela-Gela Sistema') . ") Tj\nET\n";
+        $content .= "BT\n/F1 12 Tf\n1 1 1 rg\n50 782 Td\n(" . pdf_escape_text($titulo) . ") Tj\nET\n";
+        $content .= "BT\n/F1 8 Tf\n0.35 0.35 0.35 rg\n50 754 Td\n(" . pdf_escape_text('Emitido em ' . date('d/m/Y H:i') . '  |  Página ' . ($pageIndex + 1) . ' de ' . $totalPages) . ") Tj\nET\n";
+
+        foreach ($pageData['items'] as $item) {
+            $type = $item['type'] ?? 'text';
+
+            if ($type === 'spacer') {
+                $cursorY -= 8;
+                continue;
+            }
+
+            if ($type === 'section') {
+                $cursorY -= 18;
+                $content .= "BT\n/F2 13 Tf\n0.18 0.18 0.18 rg\n50 {$cursorY} Td\n(" . pdf_escape_text($item['text'] ?? '') . ") Tj\nET\n";
+                $cursorY -= 5;
+                $content .= "0.86 0.38 0.44 RG\n50 {$cursorY} m\n545 {$cursorY} l\nS\n";
+                $cursorY -= 14;
+                continue;
+            }
+
+            if ($type === 'meta') {
+                $label = $item['label'] ?? '';
+                $value = $item['value'] ?? '';
+                $content .= "BT\n/F2 9 Tf\n0.25 0.25 0.25 rg\n50 {$cursorY} Td\n(" . pdf_escape_text($label . ':') . ") Tj\nET\n";
+                $content .= "BT\n/F1 9 Tf\n0.18 0.18 0.18 rg\n165 {$cursorY} Td\n(" . pdf_escape_text($value) . ") Tj\nET\n";
+                $cursorY -= 13;
+                continue;
+            }
+
+            if ($type === 'metric') {
+                $label = $item['label'] ?? '';
+                $value = $item['value'] ?? '';
+                $fill = $item['fill'] ?? '0.97 0.97 0.97';
+                $content .= $fill . " rg\n45 " . ($cursorY - 12) . " 505 28 re f\n";
+                $content .= "0.83 0.83 0.83 RG\n45 " . ($cursorY - 12) . " 505 28 re S\n";
+                $content .= "BT\n/F2 9 Tf\n0.20 0.20 0.20 rg\n55 {$cursorY} Td\n(" . pdf_escape_text($label) . ") Tj\nET\n";
+                $content .= "BT\n/F1 11 Tf\n0.86 0.38 0.44 rg\n320 {$cursorY} Td\n(" . pdf_escape_text($value) . ") Tj\nET\n";
+                $cursorY -= 24;
+                continue;
+            }
+
+            if ($type === 'row') {
+                $rowText = $item['text'] ?? '';
+                $wrapped = pdf_wrap_lines($rowText, 95);
+                foreach ($wrapped as $wrapLine) {
+                    $content .= "BT\n/F1 9 Tf\n0.18 0.18 0.18 rg\n50 {$cursorY} Td\n(" . pdf_escape_text($wrapLine) . ") Tj\nET\n";
+                    $cursorY -= 12;
+                }
+                $cursorY -= 2;
+                continue;
+            }
         }
-        $content .= "ET\n";
         $contentObj = $nextObj++;
         $pageObj = $nextObj++;
         $kids[] = $pageObj;
+        $content .= "Q\n";
         $objects[$contentObj] = "<< /Length " . strlen($content) . " >>\nstream\n" . $content . "endstream";
-        $objects[$pageObj] = "<< /Type /Page /Parent {$pagesObj} 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 {$fontObj} 0 R >> >> /Contents {$contentObj} 0 R >>";
+        $objects[$pageObj] = "<< /Type /Page /Parent {$pagesObj} 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 {$fontRegularObj} 0 R /F2 {$fontBoldObj} 0 R >> >> /Contents {$contentObj} 0 R >>";
     }
 
     $kidsRef = implode(' ', array_map(fn($id) => $id . ' 0 R', $kids));
     $objects[$catalogObj] = "<< /Type /Catalog /Pages {$pagesObj} 0 R >>";
     $objects[$pagesObj] = "<< /Type /Pages /Kids [{$kidsRef}] /Count " . count($kids) . " >>";
-    $objects[$fontObj] = "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>";
+    $objects[$fontRegularObj] = "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>";
+    $objects[$fontBoldObj] = "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>";
 
     ksort($objects);
 
@@ -282,8 +353,8 @@ $labels_grafico = json_encode(array_map(fn($r) => date('d/m', strtotime($r['data
 $valores_grafico = json_encode(array_map(fn($r) => (float)$r['total_dia'], $dados_grafico));
 
 if ($exportar_pdf) {
-    $linhas_pdf = [];
     $titulo_pdf = 'Relatório de Vendas';
+    $blocos_pdf = [];
 
     if ($tipo === 'estoque') {
         $titulo_pdf = 'Relatório de Estoque';
@@ -291,50 +362,46 @@ if ($exportar_pdf) {
         $titulo_pdf = 'Relatório Financeiro';
     }
 
-    $linhas_pdf[] = 'Período: ' . $label_periodo;
-    $linhas_pdf[] = 'Perfil: ' . ucfirst($perfil);
-    $linhas_pdf[] = 'Seção: ' . ucfirst($tipo);
-    $linhas_pdf[] = '';
-    $linhas_pdf[] = 'Resumo de vendas';
-    $linhas_pdf[] = 'Peso total vendido: ' . kg($kv['total_peso']);
-    $linhas_pdf[] = 'Faturamento: ' . brl($kv['total_valor']);
-    $linhas_pdf[] = 'Descontos: ' . brl($kv['total_desconto']);
-    $linhas_pdf[] = 'Quantidade de lançamentos: ' . $kv['total_registros'];
+    $blocos_pdf[] = ['type' => 'meta', 'label' => 'Período', 'value' => $label_periodo];
+    $blocos_pdf[] = ['type' => 'meta', 'label' => 'Perfil de acesso', 'value' => ucfirst($perfil)];
+    $blocos_pdf[] = ['type' => 'meta', 'label' => 'Seção exportada', 'value' => ucfirst($tipo)];
+    $blocos_pdf[] = ['type' => 'spacer'];
+    $blocos_pdf[] = ['type' => 'section', 'text' => 'Resumo executivo'];
+    $blocos_pdf[] = ['type' => 'metric', 'label' => 'Peso total vendido', 'value' => kg($kv['total_peso'])];
+    $blocos_pdf[] = ['type' => 'metric', 'label' => 'Faturamento bruto', 'value' => brl($kv['total_valor'])];
+    $blocos_pdf[] = ['type' => 'metric', 'label' => 'Total de descontos', 'value' => brl($kv['total_desconto'])];
+    $blocos_pdf[] = ['type' => 'metric', 'label' => 'Lançamentos no período', 'value' => (string)$kv['total_registros']];
 
     if ($is_gerente) {
-        $linhas_pdf[] = 'Lucro estimado: ' . brl($lucro_estimado);
+        $blocos_pdf[] = ['type' => 'metric', 'label' => 'Lucro estimado', 'value' => brl($lucro_estimado), 'fill' => '0.96 0.99 0.96'];
     }
 
     if ($tipo === 'vendas') {
-        $linhas_pdf[] = '';
-        $linhas_pdf[] = 'Vendas do período';
+        $blocos_pdf[] = ['type' => 'section', 'text' => 'Vendas detalhadas'];
         foreach ($lista_vendas as $v) {
-            $linhas_pdf[] = date('d/m/Y H:i', strtotime($v['data_venda'])) . ' | ' . brl($v['valor_total']) . ' | desconto: ' . brl($v['desconto_aplicado']) . ' | peso: ' . kg($v['peso_total']) . ' | pagamento: ' . $v['forma_pagamento'];
+            $blocos_pdf[] = ['type' => 'row', 'text' => date('d/m/Y H:i', strtotime($v['data_venda'])) . '  |  ' . brl($v['valor_total']) . '  |  desconto: ' . brl($v['desconto_aplicado']) . '  |  peso: ' . kg($v['peso_total']) . '  |  pagamento: ' . $v['forma_pagamento']];
         }
     }
 
     if ($tipo === 'estoque') {
-        $linhas_pdf[] = '';
-        $linhas_pdf[] = 'Estoque';
+        $blocos_pdf[] = ['type' => 'section', 'text' => 'Posição de estoque'];
         foreach ($lista_estoque as $e) {
-            $linhas_pdf[] = $e['produto'] . ' | ' . ($e['categoria'] ?: '—') . ' | ' . number_format($e['quantidade'], 2, ',', '.') . ' ' . $e['unidade'] . ' | validade: ' . ($e['validade'] ? date('d/m/Y', strtotime($e['validade'])) : '—') . ' | status: ' . ucfirst($e['status']);
+            $blocos_pdf[] = ['type' => 'row', 'text' => $e['produto'] . '  |  ' . ($e['categoria'] ?: '—') . '  |  ' . number_format($e['quantidade'], 2, ',', '.') . ' ' . $e['unidade'] . '  |  validade: ' . ($e['validade'] ? date('d/m/Y', strtotime($e['validade'])) : '—') . '  |  status: ' . ucfirst($e['status'])];
         }
     }
 
     if ($tipo === 'financeiro' && $is_gerente) {
-        $linhas_pdf[] = '';
-        $linhas_pdf[] = 'Financeiro';
-        $linhas_pdf[] = 'Faturamento bruto: ' . brl($kv['total_valor']);
-        $linhas_pdf[] = 'Total de despesas: ' . brl($total_despesas);
-        $linhas_pdf[] = 'Lucro líquido: ' . brl($lucro_estimado);
-        $linhas_pdf[] = '';
-        $linhas_pdf[] = 'Despesas do período';
+        $blocos_pdf[] = ['type' => 'section', 'text' => 'Indicadores financeiros'];
+        $blocos_pdf[] = ['type' => 'metric', 'label' => 'Faturamento bruto', 'value' => brl($kv['total_valor'])];
+        $blocos_pdf[] = ['type' => 'metric', 'label' => 'Total de despesas', 'value' => brl($total_despesas)];
+        $blocos_pdf[] = ['type' => 'metric', 'label' => 'Lucro líquido', 'value' => brl($lucro_estimado), 'fill' => '0.96 0.99 0.96'];
+        $blocos_pdf[] = ['type' => 'section', 'text' => 'Despesas do período'];
         foreach ($lista_despesas as $d) {
-            $linhas_pdf[] = date('d/m/Y', strtotime($d['data_despesa'])) . ' | ' . $d['categoria'] . ' | ' . $d['descricao'] . ' | ' . brl($d['valor']);
+            $blocos_pdf[] = ['type' => 'row', 'text' => date('d/m/Y', strtotime($d['data_despesa'])) . '  |  ' . $d['categoria'] . '  |  ' . $d['descricao'] . '  |  ' . brl($d['valor'])];
         }
     }
 
-    gerar_pdf_simples($titulo_pdf, $linhas_pdf);
+    gerar_pdf_profissional($titulo_pdf, $blocos_pdf);
 }
  
 // Helper formatação
