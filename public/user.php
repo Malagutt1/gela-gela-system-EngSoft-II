@@ -100,6 +100,13 @@ $usuarios = $stmt ? $stmt->fetchAll(PDO::FETCH_ASSOC) : [];
                     <i class="fa-solid fa-bars"></i>
                 </button>
                 <h1>Controle de Usuários</h1>
+
+                
+                <?php
+                require_once '../components/user-menu.php';
+                ?>
+               
+
             </header>
 
             <section class="main">
@@ -188,6 +195,7 @@ $usuarios = $stmt ? $stmt->fetchAll(PDO::FETCH_ASSOC) : [];
     </div>
 
     <script src="ASSETS/JS/sidebar.js"></script>
+    <script src="ASSETS/JS/user-menu.js"></script>
     <script>
         function abrirModalUsuario() {
             const modal = document.getElementById('modalUsuario');

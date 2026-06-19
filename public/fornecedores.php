@@ -42,6 +42,9 @@ $result = $pdo->query($sql);
                     <i class="fa-solid fa-bars"></i>
                 </button>
                 <h1>Gestão de Fornecedores</h1>
+                <?php
+                    require_once '../components/user-menu.php';
+                ?>
             </header>
             <section class="main">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:25px;">
@@ -146,6 +149,7 @@ $result = $pdo->query($sql);
     </div>
 
     <script src="ASSETS/JS/sidebar.js"></script>
+    <script src="ASSETS/JS/user-menu.js"></script>
     
     <script>
         const modal = document.getElementById('modalFornecedor');

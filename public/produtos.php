@@ -497,6 +497,7 @@ foreach ($produtos as $produto) {
                     <a href="logout" class="logout">Sair</a>
                 </div>
             </div>
+            
         </header>
         <section class="main">
             <div class="hero-panel">
@@ -657,6 +658,7 @@ foreach ($produtos as $produto) {
 </div>
 
 <script src="ASSETS/JS/sidebar.js"></script>
+<script src="ASSETS/JS/user-menu.js"></script>
 <script>
     window.GELA_GELA_IS_GERENTE = <?= $isGerente ? 'true' : 'false' ?>;
 

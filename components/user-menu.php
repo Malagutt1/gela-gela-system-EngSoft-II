@@ -11,7 +11,7 @@ $inicial = strtoupper(substr($nome_usuario, 0, 1));
 
 <div class="user-menu">
 
-    <div class="avatar" onclick="toggleUserMenu()">F
+    <div class="avatar" onclick="toggleUserMenu()">
         <?= htmlspecialchars($inicial) ?>
     </div>
 

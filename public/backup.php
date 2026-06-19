@@ -36,6 +36,11 @@ if (!isset($_SESSION['tipo']) || $_SESSION['tipo'] !== 'Gerente') {
                     <i class="fa-solid fa-bars"></i>
                 </button>
                 <h1>Backup do Sistema</h1>
+                <?php
+   require_once '../components/user-menu.php';
+ ?>
+
+
             </header>
 
             <section class="main">
@@ -81,6 +86,7 @@ if (!isset($_SESSION['tipo']) || $_SESSION['tipo'] !== 'Gerente') {
     </div>
 
     <script src="ASSETS/JS/sidebar.js"></script>
+    <script src="ASSETS/JS/user-menu.js"></script>
     <script>
         function fazerBackup() {
             const agora = new Date();
