@@ -106,6 +106,8 @@ function pdf_build_logo_image(string $filePath): ?array {
     $width = imagesx($source);
     $height = imagesy($source);
     $canvas = imagecreatetruecolor($width, $height);
+    imagealphablending($canvas, true);
+    imagesavealpha($canvas, false);
     $white = imagecolorallocate($canvas, 255, 255, 255);
     imagefill($canvas, 0, 0, $white);
     imagecopy($canvas, $source, 0, 0, 0, 0, $width, $height);
@@ -207,10 +209,11 @@ function gerar_pdf_profissional(string $titulo, array $blocos): void {
         $content .= $brandSoft . " rg\n0 748 595 22 re f\n";
         $content .= "0.97 0.97 0.97 rg\n40 694 515 24 re f\n";
         if ($logo) {
+            $content .= "q\n1 1 1 rg\n26 776 62 52 re f\nQ\n";
             $content .= "q\n44 0 0 44 42 782 cm\n/Im1 Do\nQ\n";
         }
-        $content .= "BT\n/F2 20 Tf\n1 1 1 rg\n" . ($logo ? '96' : '50') . " 800 Td\n(" . pdf_escape_text('Relatórios Gela-Gela') . ") Tj\nET\n";
-        $content .= "BT\n/F1 11 Tf\n1 1 1 rg\n" . ($logo ? '96' : '50') . " 782 Td\n(" . pdf_escape_text($titulo) . ") Tj\nET\n";
+        $content .= "BT\n/F2 20 Tf\n1 1 1 rg\n" . ($logo ? '112' : '50') . " 800 Td\n(" . pdf_escape_text('Relatórios Gela-Gela') . ") Tj\nET\n";
+        $content .= "BT\n/F1 11 Tf\n1 1 1 rg\n" . ($logo ? '112' : '50') . " 782 Td\n(" . pdf_escape_text($titulo) . ") Tj\nET\n";
         $content .= "BT\n/F1 8 Tf\n0.35 0.35 0.35 rg\n50 754 Td\n(" . pdf_escape_text('Emitido em ' . date('d/m/Y H:i') . '  |  Página ' . ($pageIndex + 1) . ' de ' . $totalPages) . ") Tj\nET\n";
 
         foreach ($pageData['items'] as $item) {
@@ -267,7 +270,7 @@ function gerar_pdf_profissional(string $titulo, array $blocos): void {
         $kids[] = $pageObj;
         $content .= "Q\n";
         $objects[$contentObj] = "<< /Length " . strlen($content) . " >>\nstream\n" . $content . "endstream";
-        $resources = "<< /Font << /F1 {$fontRegularObj} 0 R /F2 {$fontBoldObj} 0 R >>";
+        $resources = "<< /ProcSet [/PDF /Text /ImageC] /Font << /F1 {$fontRegularObj} 0 R /F2 {$fontBoldObj} 0 R >>";
         if ($logoObj) {
             $resources .= " /XObject << /Im1 {$logoObj} 0 R >>";
         }
