@@ -244,7 +244,70 @@ if (!isset($_SESSION['tipo']) || $_SESSION['tipo'] !== 'Gerente') {
     </div>
 
     <script src="ASSETS/JS/sidebar.js"></script>
-    <script src="ASSETS/JS/app.js"></script>
+    <script>
+        function abrirModalUsuario() {
+            const modal = document.getElementById('modalUsuario');
+            if (modal) modal.classList.add('show');
+        }
+
+        function fecharModalUsuario() {
+            const modal = document.getElementById('modalUsuario');
+            const form = modal ? modal.querySelector('form') : null;
+            if (modal) modal.classList.remove('show');
+            if (form) form.reset();
+        }
+
+        function adicionarLinha(tabelaId, conteudoHTML) {
+            const tabela = document.getElementById(tabelaId);
+            if (tabela) tabela.innerHTML += conteudoHTML;
+        }
+
+        function excluirLinha(btn, mensagemConfirmacao = 'Deseja excluir este item?') {
+            if (confirm(mensagemConfirmacao)) {
+                const linha = btn.closest('tr');
+                if (linha) linha.remove();
+                alert('Item removido!');
+            }
+        }
+
+        function excluirUsuario(btn) {
+            excluirLinha(btn, 'Deseja excluir este usuário?');
+        }
+
+        function salvarUsuario(e) {
+            e.preventDefault();
+
+            const nome = document.getElementById('u-nome').value.trim();
+            const login = document.getElementById('u-login').value.trim();
+            const tipo = document.getElementById('u-tipo').value;
+
+            if (!nome || !login || !tipo) {
+                alert('Preencha todos os campos.');
+                return;
+            }
+
+            const labelTipo = tipo === 'gerente' ? 'Gerentes' : 'Funcionario';
+            const classeTipo = tipo === 'gerente' ? 'danger' : 'ok';
+
+            const novaLinha = `
+                <tr>
+                    <td>${nome}</td>
+                    <td>${login}</td>
+                    <td><span class="badge ${classeTipo}">${labelTipo}</span></td>
+                    <td>
+                        <button class="btn-icon"><i class="fa fa-pen"></i></button>
+                        <button class="btn-icon danger" onclick="excluirUsuario(this)">
+                            <i class="fa fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `;
+
+            adicionarLinha('tabela-usuarios', novaLinha);
+            alert('Usuário criado!');
+            fecharModalUsuario();
+        }
+    </script>
 
 </body>
 

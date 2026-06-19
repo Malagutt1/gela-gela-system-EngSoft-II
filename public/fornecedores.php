@@ -146,7 +146,6 @@ $result = $pdo->query($sql);
     </div>
 
     <script src="ASSETS/JS/sidebar.js"></script>
-    <script src="ASSETS/JS/app.js"></script>
     
     <script>
         const modal = document.getElementById('modalFornecedor');

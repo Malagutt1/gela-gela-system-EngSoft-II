@@ -81,7 +81,38 @@ if (!isset($_SESSION['tipo']) || $_SESSION['tipo'] !== 'Gerente') {
     </div>
 
     <script src="ASSETS/JS/sidebar.js"></script>
-    <script src="ASSETS/JS/app.js"></script>
+    <script>
+        function fazerBackup() {
+            const agora = new Date();
+            const dataFormatada = agora.toLocaleString('pt-BR');
+            const sucesso = Math.random() > 0.2;
+
+            const novaLinha = `
+                <tr>
+                    <td>${dataFormatada}</td>
+                    <td><span class="tag-resumo">Manual</span></td>
+                    <td><span class="badge ${sucesso ? 'ok' : 'danger'}">${sucesso ? 'Sucesso' : 'Falha'}</span></td>
+                    <td>
+                        <button class="btn-icon" onclick="baixarBackup()">
+                            <i class="fa fa-download"></i>
+                        </button>
+                    </td>
+                </tr>
+            `;
+
+            const tabela = document.getElementById('tabela-backup');
+            if (tabela) tabela.innerHTML += novaLinha;
+
+            const ultimoBackup = document.getElementById('ultimo-backup');
+            if (ultimoBackup) ultimoBackup.innerText = dataFormatada;
+
+            alert(sucesso ? 'Backup realizado!' : 'Erro ao gerar backup!');
+        }
+
+        function baixarBackup() {
+            alert('Download iniciado (simulação)');
+        }
+    </script>
 
 </body>
 

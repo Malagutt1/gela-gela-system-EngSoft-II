@@ -784,7 +784,6 @@ function kg($v)  { return number_format($v, 2, ',', '.') . ' kg'; }
 <?php endif; ?>
  
 <script src="ASSETS/JS/sidebar.js"></script>
-<script src="ASSETS/JS/app.js"></script>
 <script>
 // ── Troca de abas ─────────────────────────────────────────────────────
 function mudarAba(aba, button) {

@@ -115,7 +115,6 @@ if (!isset($_SESSION['tipo']) || $_SESSION['tipo'] !== 'Gerente') {
     </div>
 
     <script src="ASSETS/JS/sidebar.js"></script>
-    <script src="ASSETS/JS/app.js"></script>
 
 </body>
 
