@@ -39,6 +39,11 @@ const products = [
 let currentProduct = 0;
 let scrollTimeout;
 let isScrolling = false;
+let isInCarousel = true;
+let totalScrollDelta = 0;
+let scrollPhase = 0; // 0: Carrossel, 1: Sobre, 2: Localização
+let lastScrollTime = 0;
+const SCROLL_DEBOUNCE = 1000; // ms entre transições
 
 // ==========================================
 // INICIALIZAÇÃO
@@ -66,21 +71,53 @@ function initScrollNavigation() {
         // Previne scroll padrão
         e.preventDefault();
 
-        if (isScrolling) return;
+        const now = Date.now();
 
-        // Acumula o delta do scroll
-        scrollDelta += e.deltaY;
+        // Se está scrollando no carrossel
+        if (scrollPhase === 0) {
+            if (isScrolling) return;
 
-        // Threshold para mudança de produto (100px de scroll)
-        if (Math.abs(scrollDelta) > 100) {
-            if (scrollDelta > 0) {
-                // Scroll down = próximo produto
-                nextProduct();
-            } else {
-                // Scroll up = produto anterior
-                previousProduct();
+            scrollDelta += e.deltaY;
+
+            // Threshold para mudança de produto (100px de scroll)
+            if (Math.abs(scrollDelta) > 100) {
+                if (scrollDelta > 0) {
+                    // Scroll down = próximo produto
+                    if (currentProduct < products.length - 1) {
+                        nextProduct();
+                        scrollDelta = 0;
+                    } else if (now - lastScrollTime > SCROLL_DEBOUNCE) {
+                        // Último produto - transition para seção About
+                        lastScrollTime = now;
+                        transitionToAboutSection();
+                        scrollDelta = 0;
+                    }
+                } else {
+                    // Scroll up = produto anterior
+                    if (currentProduct > 0) {
+                        previousProduct();
+                        scrollDelta = 0;
+                    }
+                }
             }
-            scrollDelta = 0;
+        } else if (scrollPhase === 1) {
+            // Estamos na seção About
+            if (e.deltaY > 0 && now - lastScrollTime > SCROLL_DEBOUNCE) {
+                // Scroll down = vai para Location
+                lastScrollTime = now;
+                transitionToLocationSection();
+            } else if (e.deltaY < 0 && now - lastScrollTime > SCROLL_DEBOUNCE) {
+                // Scroll up = volta para Carrossel
+                lastScrollTime = now;
+                transitionToCarousel();
+            }
+        } else if (scrollPhase === 2) {
+            // Estamos na seção Location
+            if (e.deltaY < 0 && now - lastScrollTime > SCROLL_DEBOUNCE) {
+                // Scroll up = volta para About
+                lastScrollTime = now;
+                transitionToAboutSection();
+            }
         }
     }, { passive: false });
 }
@@ -131,6 +168,110 @@ function transitionProduct() {
     // Confete ao mudar produto
     createConfetti(window.innerWidth / 2, window.innerHeight / 2);
     playSound('product-change');
+}
+
+// ==========================================
+// TRANSIÇÕES DE SEÇÃO
+// ==========================================
+function transitionToAboutSection() {
+    const appWindow = document.querySelector('.app-window');
+    const aboutSection = document.querySelector('.about-section');
+    
+    scrollPhase = 1;
+
+    // Anima saída do app-window
+    gsap.to(appWindow, {
+        duration: 0.8,
+        opacity: 0,
+        scale: 0.9,
+        y: -50,
+        ease: 'power2.in'
+    });
+
+    // Anima entrada da seção About
+    gsap.to(aboutSection, {
+        duration: 0.8,
+        opacity: 1,
+        x: 0,
+        ease: 'power2.out',
+        delay: 0.2
+    });
+
+    // Scroll suave para a seção
+    gsap.to(window, {
+        duration: 1.2,
+        scrollTo: { y: window.innerHeight + 50 },
+        ease: 'power2.inOut'
+    });
+
+    console.log('Transicionado para About Section');
+}
+
+function transitionToLocationSection() {
+    const aboutSection = document.querySelector('.about-section');
+    const locationSection = document.querySelector('.location-section');
+
+    scrollPhase = 2;
+
+    // Anima saída da seção About
+    gsap.to(aboutSection, {
+        duration: 0.8,
+        opacity: 0,
+        x: -50,
+        ease: 'power2.in'
+    });
+
+    // Anima entrada da seção Location
+    gsap.to(locationSection, {
+        duration: 0.8,
+        opacity: 1,
+        x: 0,
+        ease: 'power2.out',
+        delay: 0.2
+    });
+
+    // Scroll suave para a seção
+    gsap.to(window, {
+        duration: 1.2,
+        scrollTo: { y: window.innerHeight * 2 + 50 },
+        ease: 'power2.inOut'
+    });
+
+    console.log('Transicionado para Location Section');
+}
+
+function transitionToCarousel() {
+    const appWindow = document.querySelector('.app-window');
+    const aboutSection = document.querySelector('.about-section');
+
+    scrollPhase = 0;
+
+    // Anima saída da seção About
+    gsap.to(aboutSection, {
+        duration: 0.8,
+        opacity: 0,
+        x: 50,
+        ease: 'power2.in'
+    });
+
+    // Anima entrada do app-window
+    gsap.to(appWindow, {
+        duration: 0.8,
+        opacity: 1,
+        scale: 1,
+        y: 0,
+        ease: 'power2.out',
+        delay: 0.2
+    });
+
+    // Scroll suave para o topo
+    gsap.to(window, {
+        duration: 1.2,
+        scrollTo: { y: 0 },
+        ease: 'power2.inOut'
+    });
+
+    console.log('Transicionado para Carousel');
 }
 
 // ==========================================
@@ -424,5 +565,8 @@ window.GelaGelaApp = {
     transitionProduct,
     createConfetti,
     playSound,
-    getRandomProductColor
+    getRandomProductColor,
+    transitionToAboutSection,
+    transitionToLocationSection,
+    transitionToCarousel
 };
