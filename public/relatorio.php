@@ -56,8 +56,15 @@ function garantirTabelaDespesas(PDO $pdo): bool {
 $tem_tabela_despesas = garantirTabelaDespesas($pdo);
 
 function pdf_escape_text(string $text): string {
-    $converted = @iconv('UTF-8', 'Windows-1252//TRANSLIT', $text);
-    if ($converted !== false) {
+    $text = html_entity_decode($text, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+    $converted = false;
+    if (function_exists('mb_convert_encoding')) {
+        $converted = @mb_convert_encoding($text, 'Windows-1252', 'UTF-8');
+    }
+    if ($converted === false || $converted === null) {
+        $converted = @iconv('UTF-8', 'Windows-1252//TRANSLIT//IGNORE', $text);
+    }
+    if ($converted !== false && $converted !== null) {
         $text = $converted;
     }
     $text = str_replace(["\\", "(", ")"], ["\\\\", "\\(", "\\)"], $text);
@@ -86,10 +93,69 @@ function pdf_wrap_lines(string $text, int $maxChars): array {
     return $lines ?: [''];
 }
 
+function pdf_build_logo_image(string $filePath): ?array {
+    if (!function_exists('imagecreatefrompng') || !is_file($filePath)) {
+        return null;
+    }
+
+    $source = @imagecreatefrompng($filePath);
+    if (!$source) {
+        return null;
+    }
+
+    $width = imagesx($source);
+    $height = imagesy($source);
+    $canvas = imagecreatetruecolor($width, $height);
+    $white = imagecolorallocate($canvas, 255, 255, 255);
+    imagefill($canvas, 0, 0, $white);
+    imagecopy($canvas, $source, 0, 0, 0, 0, $width, $height);
+
+    $raw = '';
+    for ($y = 0; $y < $height; $y++) {
+        for ($x = 0; $x < $width; $x++) {
+            $color = imagecolorat($canvas, $x, $y);
+            $raw .= chr(($color >> 16) & 255) . chr(($color >> 8) & 255) . chr($color & 255);
+        }
+    }
+
+    imagedestroy($source);
+    imagedestroy($canvas);
+
+    return [
+        'width' => $width,
+        'height' => $height,
+        'data' => gzcompress($raw, 9),
+    ];
+}
+
+function pdf_hex_to_rgb(string $hex): array {
+    $hex = ltrim($hex, '#');
+    if (strlen($hex) === 3) {
+        $hex = $hex[0] . $hex[0] . $hex[1] . $hex[1] . $hex[2] . $hex[2];
+    }
+
+    return [
+        hexdec(substr($hex, 0, 2)) / 255,
+        hexdec(substr($hex, 2, 2)) / 255,
+        hexdec(substr($hex, 4, 2)) / 255,
+    ];
+}
+
+function pdf_rgb_str(string $hex): string {
+    [$r, $g, $b] = pdf_hex_to_rgb($hex);
+    return number_format($r, 3, '.', '') . ' ' . number_format($g, 3, '.', '') . ' ' . number_format($b, 3, '.', '');
+}
+
 function gerar_pdf_profissional(string $titulo, array $blocos): void {
     $pages = [];
     $page = ['items' => [], 'lines' => 0];
-    $maxLines = 34;
+    $maxLines = 30;
+
+    $brandPrimary = pdf_rgb_str('#c6746a');
+    $brandSecondary = pdf_rgb_str('#11417b');
+    $brandSoft = pdf_rgb_str('#facee1');
+    $logoPath = realpath(__DIR__ . '/../ASSETS/IMG/icon.png');
+    $logo = $logoPath ? pdf_build_logo_image($logoPath) : null;
 
     $pushPage = function () use (&$pages, &$page): void {
         $pages[] = $page;
@@ -101,11 +167,11 @@ function gerar_pdf_profissional(string $titulo, array $blocos): void {
         $estimatedLines = 1;
 
         if ($type === 'row') {
-            $estimatedLines = count(pdf_wrap_lines($bloco['text'] ?? '', 92));
+            $estimatedLines = count(pdf_wrap_lines($bloco['text'] ?? '', 82));
         } elseif ($type === 'meta') {
-            $estimatedLines = count(pdf_wrap_lines(($bloco['label'] ?? '') . ': ' . ($bloco['value'] ?? ''), 84));
+            $estimatedLines = count(pdf_wrap_lines(($bloco['label'] ?? '') . ': ' . ($bloco['value'] ?? ''), 76));
         } elseif ($type === 'metric') {
-            $estimatedLines = 2;
+            $estimatedLines = 3;
         } elseif ($type === 'section') {
             $estimatedLines = 2;
         } elseif ($type === 'spacer') {
@@ -127,27 +193,31 @@ function gerar_pdf_profissional(string $titulo, array $blocos): void {
     $objects = [];
     $catalogObj = 1;
     $pagesObj = 2;
-    $fontRegularObj = 3;
-    $fontBoldObj = 4;
-    $nextObj = 5;
+    $logoObj = $logo ? 3 : null;
+    $fontRegularObj = $logo ? 4 : 3;
+    $fontBoldObj = $logo ? 5 : 4;
+    $nextObj = $logo ? 6 : 5;
     $kids = [];
     $totalPages = count($pages);
 
     foreach ($pages as $pageIndex => $pageData) {
-        $cursorY = 728;
+        $cursorY = 720;
         $content = "q\n";
-        $content .= "0.86 0.38 0.44 rg\n0 770 595 72 re f\n";
-        $content .= "0.95 0.92 0.92 rg\n0 748 595 22 re f\n";
+        $content .= $brandPrimary . " rg\n0 770 595 72 re f\n";
+        $content .= $brandSoft . " rg\n0 748 595 22 re f\n";
         $content .= "0.97 0.97 0.97 rg\n40 694 515 24 re f\n";
-        $content .= "BT\n/F2 22 Tf\n1 1 1 rg\n50 800 Td\n(" . pdf_escape_text('Gela-Gela Sistema') . ") Tj\nET\n";
-        $content .= "BT\n/F1 12 Tf\n1 1 1 rg\n50 782 Td\n(" . pdf_escape_text($titulo) . ") Tj\nET\n";
+        if ($logo) {
+            $content .= "q\n44 0 0 44 42 782 cm\n/Im1 Do\nQ\n";
+        }
+        $content .= "BT\n/F2 20 Tf\n1 1 1 rg\n" . ($logo ? '96' : '50') . " 800 Td\n(" . pdf_escape_text('Relatórios Gela-Gela') . ") Tj\nET\n";
+        $content .= "BT\n/F1 11 Tf\n1 1 1 rg\n" . ($logo ? '96' : '50') . " 782 Td\n(" . pdf_escape_text($titulo) . ") Tj\nET\n";
         $content .= "BT\n/F1 8 Tf\n0.35 0.35 0.35 rg\n50 754 Td\n(" . pdf_escape_text('Emitido em ' . date('d/m/Y H:i') . '  |  Página ' . ($pageIndex + 1) . ' de ' . $totalPages) . ") Tj\nET\n";
 
         foreach ($pageData['items'] as $item) {
             $type = $item['type'] ?? 'text';
 
             if ($type === 'spacer') {
-                $cursorY -= 8;
+                $cursorY -= 10;
                 continue;
             }
 
@@ -155,7 +225,7 @@ function gerar_pdf_profissional(string $titulo, array $blocos): void {
                 $cursorY -= 18;
                 $content .= "BT\n/F2 13 Tf\n0.18 0.18 0.18 rg\n50 {$cursorY} Td\n(" . pdf_escape_text($item['text'] ?? '') . ") Tj\nET\n";
                 $cursorY -= 5;
-                $content .= "0.86 0.38 0.44 RG\n50 {$cursorY} m\n545 {$cursorY} l\nS\n";
+                $content .= $brandPrimary . " RG\n50 {$cursorY} m\n545 {$cursorY} l\nS\n";
                 $cursorY -= 14;
                 continue;
             }
@@ -173,20 +243,20 @@ function gerar_pdf_profissional(string $titulo, array $blocos): void {
                 $label = $item['label'] ?? '';
                 $value = $item['value'] ?? '';
                 $fill = $item['fill'] ?? '0.97 0.97 0.97';
-                $content .= $fill . " rg\n45 " . ($cursorY - 12) . " 505 28 re f\n";
+                $content .= $fill . " rg\n45 " . ($cursorY - 14) . " 505 32 re f\n";
                 $content .= "0.83 0.83 0.83 RG\n45 " . ($cursorY - 12) . " 505 28 re S\n";
                 $content .= "BT\n/F2 9 Tf\n0.20 0.20 0.20 rg\n55 {$cursorY} Td\n(" . pdf_escape_text($label) . ") Tj\nET\n";
-                $content .= "BT\n/F1 11 Tf\n0.86 0.38 0.44 rg\n320 {$cursorY} Td\n(" . pdf_escape_text($value) . ") Tj\nET\n";
-                $cursorY -= 24;
+                $content .= "BT\n/F1 11 Tf\n" . $brandPrimary . " rg\n320 {$cursorY} Td\n(" . pdf_escape_text($value) . ") Tj\nET\n";
+                $cursorY -= 28;
                 continue;
             }
 
             if ($type === 'row') {
                 $rowText = $item['text'] ?? '';
-                $wrapped = pdf_wrap_lines($rowText, 95);
+                $wrapped = pdf_wrap_lines($rowText, 82);
                 foreach ($wrapped as $wrapLine) {
-                    $content .= "BT\n/F1 9 Tf\n0.18 0.18 0.18 rg\n50 {$cursorY} Td\n(" . pdf_escape_text($wrapLine) . ") Tj\nET\n";
-                    $cursorY -= 12;
+                    $content .= "BT\n/F1 8.5 Tf\n0.18 0.18 0.18 rg\n50 {$cursorY} Td\n(" . pdf_escape_text($wrapLine) . ") Tj\nET\n";
+                    $cursorY -= 13;
                 }
                 $cursorY -= 2;
                 continue;
@@ -197,12 +267,20 @@ function gerar_pdf_profissional(string $titulo, array $blocos): void {
         $kids[] = $pageObj;
         $content .= "Q\n";
         $objects[$contentObj] = "<< /Length " . strlen($content) . " >>\nstream\n" . $content . "endstream";
-        $objects[$pageObj] = "<< /Type /Page /Parent {$pagesObj} 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 {$fontRegularObj} 0 R /F2 {$fontBoldObj} 0 R >> >> /Contents {$contentObj} 0 R >>";
+        $resources = "<< /Font << /F1 {$fontRegularObj} 0 R /F2 {$fontBoldObj} 0 R >>";
+        if ($logoObj) {
+            $resources .= " /XObject << /Im1 {$logoObj} 0 R >>";
+        }
+        $resources .= " >>";
+        $objects[$pageObj] = "<< /Type /Page /Parent {$pagesObj} 0 R /MediaBox [0 0 595 842] /Resources {$resources} /Contents {$contentObj} 0 R >>";
     }
 
     $kidsRef = implode(' ', array_map(fn($id) => $id . ' 0 R', $kids));
     $objects[$catalogObj] = "<< /Type /Catalog /Pages {$pagesObj} 0 R >>";
     $objects[$pagesObj] = "<< /Type /Pages /Kids [{$kidsRef}] /Count " . count($kids) . " >>";
+    if ($logo && isset($logoObj)) {
+        $objects[$logoObj] = "<< /Type /XObject /Subtype /Image /Width {$logo['width']} /Height {$logo['height']} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /FlateDecode /Length " . strlen($logo['data']) . " >>\nstream\n" . $logo['data'] . "\nendstream";
+    }
     $objects[$fontRegularObj] = "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>";
     $objects[$fontBoldObj] = "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>";
 
@@ -306,6 +384,27 @@ $lucro_estimado = $kv['total_valor'] - $kv['total_desconto'] - $total_despesas;
 $rows_vendas = $pdo->prepare("SELECT * FROM vendas WHERE data_venda BETWEEN ? AND ? ORDER BY data_venda DESC");
 $rows_vendas->execute([$data_inicio, $data_fim]);
 $lista_vendas = $rows_vendas->fetchAll(PDO::FETCH_ASSOC);
+
+$rows_vendas_detalhadas = $pdo->prepare(<<<SQL
+    SELECT
+        v.venda_id,
+        v.data_venda,
+        v.peso_total AS peso_venda,
+        v.valor_total,
+        v.desconto_aplicado,
+        v.forma_pagamento,
+        iv.item_venda_id,
+        COALESCE(NULLIF(iv.sabor, ''), NULLIF(iv.adicionais, ''), p.nome) AS item_vendido,
+        iv.quantidade AS quantidade_item,
+        iv.valor_unitario
+    FROM vendas v
+    LEFT JOIN itens_venda iv ON iv.venda_id = v.venda_id
+    LEFT JOIN produtos p ON p.produto_id = iv.produto_id
+    WHERE v.data_venda BETWEEN ? AND ?
+    ORDER BY v.data_venda DESC, v.venda_id DESC, iv.item_venda_id ASC
+SQL);
+$rows_vendas_detalhadas->execute([$data_inicio, $data_fim]);
+$lista_vendas_detalhadas = $rows_vendas_detalhadas->fetchAll(PDO::FETCH_ASSOC);
  
 // Tabela de estoque
 $lista_estoque = $pdo->query("
@@ -378,15 +477,15 @@ if ($exportar_pdf) {
 
     if ($tipo === 'vendas') {
         $blocos_pdf[] = ['type' => 'section', 'text' => 'Vendas detalhadas'];
-        foreach ($lista_vendas as $v) {
-            $blocos_pdf[] = ['type' => 'row', 'text' => date('d/m/Y H:i', strtotime($v['data_venda'])) . '  |  ' . brl($v['valor_total']) . '  |  desconto: ' . brl($v['desconto_aplicado']) . '  |  peso: ' . kg($v['peso_total']) . '  |  pagamento: ' . $v['forma_pagamento']];
+        foreach ($lista_vendas_detalhadas as $v) {
+            $blocos_pdf[] = ['type' => 'row', 'text' => 'Venda #' . $v['venda_id'] . ' | ' . date('d/m/Y H:i', strtotime($v['data_venda'])) . ' | Item: ' . $v['item_vendido'] . ' | Quantidade: ' . number_format((float)$v['quantidade_item'], 3, ',', '.') . ' kg | Peso da venda: ' . kg($v['peso_venda']) . ' | Valor: ' . brl($v['valor_total']) . ' | Pagamento: ' . $v['forma_pagamento']];
         }
     }
 
     if ($tipo === 'estoque') {
         $blocos_pdf[] = ['type' => 'section', 'text' => 'Posição de estoque'];
         foreach ($lista_estoque as $e) {
-            $blocos_pdf[] = ['type' => 'row', 'text' => $e['produto'] . '  |  ' . ($e['categoria'] ?: '—') . '  |  ' . number_format($e['quantidade'], 2, ',', '.') . ' ' . $e['unidade'] . '  |  validade: ' . ($e['validade'] ? date('d/m/Y', strtotime($e['validade'])) : '—') . '  |  status: ' . ucfirst($e['status'])];
+            $blocos_pdf[] = ['type' => 'row', 'text' => $e['produto'] . ' | Categoria: ' . ($e['categoria'] ?: '—') . ' | Quantidade: ' . number_format($e['quantidade'], 2, ',', '.') . ' ' . $e['unidade'] . ' | Validade: ' . ($e['validade'] ? date('d/m/Y', strtotime($e['validade'])) : '—') . ' | Status: ' . ucfirst($e['status'])];
         }
     }
 
@@ -397,7 +496,7 @@ if ($exportar_pdf) {
         $blocos_pdf[] = ['type' => 'metric', 'label' => 'Lucro líquido', 'value' => brl($lucro_estimado), 'fill' => '0.96 0.99 0.96'];
         $blocos_pdf[] = ['type' => 'section', 'text' => 'Despesas do período'];
         foreach ($lista_despesas as $d) {
-            $blocos_pdf[] = ['type' => 'row', 'text' => date('d/m/Y', strtotime($d['data_despesa'])) . '  |  ' . $d['categoria'] . '  |  ' . $d['descricao'] . '  |  ' . brl($d['valor'])];
+            $blocos_pdf[] = ['type' => 'row', 'text' => date('d/m/Y', strtotime($d['data_despesa'])) . ' | Categoria: ' . $d['categoria'] . ' | Descrição: ' . $d['descricao'] . ' | Valor: ' . brl($d['valor'])];
         }
     }
 
@@ -525,6 +624,51 @@ function kg($v)  { return number_format($v, 2, ',', '.') . ' kg'; }
                 <div class="chart-wrap">
                     <h3><i class="fa fa-chart-line" style="color:var(--primary)"></i> Evolução das Vendas — <?= $label_periodo ?></h3>
                     <canvas id="grafico-vendas" height="90"></canvas>
+                </div>
+
+                <div class="box" style="margin-top:20px;">
+                    <div class="header-box">
+                        <h3><i class="fa fa-receipt" style="color:var(--primary)"></i> Detalhamento das Vendas</h3>
+                        <span style="font-size:12px; color:var(--text-muted);">Item vendido, quantidade, peso da venda e valor</span>
+                    </div>
+
+                    <?php if (empty($lista_vendas_detalhadas)): ?>
+                        <p style="color:var(--text-muted); text-align:center; padding:30px 0;">
+                            <i class="fa fa-inbox" style="font-size:28px; display:block; margin-bottom:8px; color:#ddd"></i>
+                            Nenhuma venda encontrada no período.
+                        </p>
+                    <?php else: ?>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Data</th>
+                                    <th>Venda</th>
+                                    <th>Item vendido</th>
+                                    <th>Quantidade</th>
+                                    <th>Peso da venda</th>
+                                    <th>Valor</th>
+                                    <th>Pagamento</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($lista_vendas_detalhadas as $v): ?>
+                                <tr>
+                                    <td><?= date('d/m/Y H:i', strtotime($v['data_venda'])) ?></td>
+                                    <td>#<?= (int)$v['venda_id'] ?></td>
+                                    <td style="max-width:320px; white-space:normal; line-height:1.5;">
+                                        <?= htmlspecialchars($v['item_vendido'] ?: 'Sem item') ?>
+                                    </td>
+                                    <td><?= number_format((float)$v['quantidade_item'], 3, ',', '.') ?> kg</td>
+                                    <td><?= kg($v['peso_venda']) ?></td>
+                                    <td style="font-weight:700; color:#2c3e50;"><?= brl($v['valor_total']) ?></td>
+                                    <td><span class="tag-resumo"><?= htmlspecialchars(str_replace('_', ' ', $v['forma_pagamento'])) ?></span></td>
+                                </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                    <?php endif; ?>
                 </div>
  
             </div><!-- /tab-vendas -->
