@@ -513,8 +513,6 @@ foreach ($produtos as $produto) {
                 <div class="summary-card"><h4>Fornecedores</h4><strong><?= count($fornecedores) ?></strong></div>
             </div>
 
-            <div class="note-box"><strong>RN.005-A:</strong> os lançamentos de estoque consideram conferência manual do estoque físico antes de registrar entradas, saídas ou ajustes.</div>
-
             <div class="toolbar">
                 <form method="get" action="produtos">
                     <input type="text" name="q" value="<?= e($busca) ?>" placeholder="Buscar por nome ou categoria">
