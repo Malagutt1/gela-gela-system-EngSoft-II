@@ -607,6 +607,22 @@ CREATE TABLE `vendas` (
   `status` enum('Pendente','Confirmado','Em_Preparacao','Concluido','Cancelado') DEFAULT 'Confirmado'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `despesas`
+--
+
+CREATE TABLE `despesas` (
+  `despesa_id` int(11) NOT NULL,
+  `data_despesa` date NOT NULL,
+  `descricao` varchar(255) NOT NULL,
+  `categoria` varchar(100) NOT NULL DEFAULT 'Geral',
+  `valor` decimal(10,2) NOT NULL DEFAULT 0.00,
+  `usuario_id` int(11) DEFAULT NULL,
+  `data_registro` datetime NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 --
 -- Despejando dados para a tabela `vendas`
 --
@@ -794,6 +810,15 @@ ALTER TABLE `promocoes`
   ADD KEY `criado_por` (`criado_por`);
 
 --
+-- Índices de tabela `despesas`
+--
+ALTER TABLE `despesas`
+  ADD PRIMARY KEY (`despesa_id`),
+  ADD KEY `idx_despesas_data` (`data_despesa`),
+  ADD KEY `idx_despesas_categoria` (`categoria`),
+  ADD KEY `idx_despesas_usuario` (`usuario_id`);
+
+--
 -- Índices de tabela `usuarios`
 --
 ALTER TABLE `usuarios`
@@ -863,6 +888,12 @@ ALTER TABLE `promocoes`
   MODIFY `promocao_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
+-- AUTO_INCREMENT de tabela `despesas`
+--
+ALTER TABLE `despesas`
+  MODIFY `despesa_id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT de tabela `usuarios`
 --
 ALTER TABLE `usuarios`
@@ -917,6 +948,12 @@ ALTER TABLE `produtos`
 --
 ALTER TABLE `promocoes`
   ADD CONSTRAINT `promocoes_ibfk_1` FOREIGN KEY (`criado_por`) REFERENCES `usuarios` (`usuario_id`);
+
+--
+-- Restrições para tabelas `despesas`
+--
+ALTER TABLE `despesas`
+  ADD CONSTRAINT `despesas_ibfk_1` FOREIGN KEY (`usuario_id`) REFERENCES `usuarios` (`usuario_id`) ON DELETE SET NULL;
 
 --
 -- Restrições para tabelas `vendas`

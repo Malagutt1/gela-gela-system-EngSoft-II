@@ -23,6 +23,8 @@ $tipo     = $_GET['tipo']     ?? 'vendas';
 if (!$is_gerente && $tipo === 'financeiro') {
     $tipo = 'vendas';
 }
+
+$exportar_pdf = (($_GET['exportar'] ?? '') === 'pdf');
  
 // Define intervalo de datas
 switch ($periodo) {
@@ -41,7 +43,125 @@ switch ($periodo) {
         $data_fim    = date('Y-m-t');
         $label_periodo = 'Este Mês (' . date('m/Y') . ')';
 }
-$tem_tabela_despesas = (bool)$pdo->query("SHOW TABLES LIKE 'despesas'")->fetchColumn();
+
+function garantirTabelaDespesas(PDO $pdo): bool {
+    try {
+        $pdo->exec("\n            CREATE TABLE IF NOT EXISTS despesas (\n                despesa_id INT(11) NOT NULL AUTO_INCREMENT,\n                data_despesa DATE NOT NULL,\n                descricao VARCHAR(255) NOT NULL,\n                categoria VARCHAR(100) NOT NULL DEFAULT 'Geral',\n                valor DECIMAL(10,2) NOT NULL DEFAULT 0.00,\n                usuario_id INT(11) DEFAULT NULL,\n                data_registro DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,\n                PRIMARY KEY (despesa_id),\n                KEY idx_despesas_data (data_despesa),\n                KEY idx_despesas_categoria (categoria),\n                KEY idx_despesas_usuario (usuario_id),\n                CONSTRAINT despesas_ibfk_1 FOREIGN KEY (usuario_id) REFERENCES usuarios (usuario_id) ON DELETE SET NULL\n            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci\n        ");
+        return true;
+    } catch (PDOException $e) {
+        return (bool)$pdo->query("SHOW TABLES LIKE 'despesas'")->fetchColumn();
+    }
+}
+
+$tem_tabela_despesas = garantirTabelaDespesas($pdo);
+
+function pdf_escape_text(string $text): string {
+    $converted = @iconv('UTF-8', 'Windows-1252//TRANSLIT', $text);
+    if ($converted !== false) {
+        $text = $converted;
+    }
+    $text = str_replace(["\\", "(", ")"], ["\\\\", "\\(", "\\)"], $text);
+    return preg_replace('/[^\x09\x0A\x0D\x20-\x7E\xA0-\xFF]/', '', $text);
+}
+
+function pdf_wrap_lines(string $text, int $maxChars): array {
+    $words = preg_split('/\s+/', trim($text)) ?: [];
+    $lines = [];
+    $line = '';
+
+    foreach ($words as $word) {
+        $candidate = $line === '' ? $word : $line . ' ' . $word;
+        if (strlen($candidate) > $maxChars && $line !== '') {
+            $lines[] = $line;
+            $line = $word;
+        } else {
+            $line = $candidate;
+        }
+    }
+
+    if ($line !== '') {
+        $lines[] = $line;
+    }
+
+    return $lines ?: [''];
+}
+
+function gerar_pdf_simples(string $titulo, array $linhas): void {
+    $pages = [];
+    $page = [];
+    $maxLines = 44;
+
+    foreach ($linhas as $linha) {
+        $wrapped = pdf_wrap_lines($linha, 95);
+        foreach ($wrapped as $wrapLine) {
+            if (count($page) >= $maxLines) {
+                $pages[] = $page;
+                $page = [];
+            }
+            $page[] = $wrapLine;
+        }
+    }
+
+    if (!empty($page) || empty($pages)) {
+        $pages[] = $page;
+    }
+
+    $objects = [];
+    $catalogObj = 1;
+    $pagesObj = 2;
+    $fontObj = 3;
+    $nextObj = 4;
+    $kids = [];
+
+    foreach ($pages as $pageLines) {
+        $content = "BT\n/F1 12 Tf\n";
+        $content .= "1 0 0 1 50 790 Tm\n";
+        $content .= "14 TL\n";
+        $content .= '(' . pdf_escape_text($titulo) . ") Tj\nT*\n";
+        $content .= '(' . pdf_escape_text(str_repeat('-', 90)) . ") Tj\nT*\n";
+        foreach ($pageLines as $line) {
+            $content .= '(' . pdf_escape_text($line) . ") Tj\nT*\n";
+        }
+        $content .= "ET\n";
+        $contentObj = $nextObj++;
+        $pageObj = $nextObj++;
+        $kids[] = $pageObj;
+        $objects[$contentObj] = "<< /Length " . strlen($content) . " >>\nstream\n" . $content . "endstream";
+        $objects[$pageObj] = "<< /Type /Page /Parent {$pagesObj} 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 {$fontObj} 0 R >> >> /Contents {$contentObj} 0 R >>";
+    }
+
+    $kidsRef = implode(' ', array_map(fn($id) => $id . ' 0 R', $kids));
+    $objects[$catalogObj] = "<< /Type /Catalog /Pages {$pagesObj} 0 R >>";
+    $objects[$pagesObj] = "<< /Type /Pages /Kids [{$kidsRef}] /Count " . count($kids) . " >>";
+    $objects[$fontObj] = "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>";
+
+    ksort($objects);
+
+    $pdf = "%PDF-1.4\n";
+    $offsets = [0 => 0];
+    foreach ($objects as $id => $body) {
+        $offsets[$id] = strlen($pdf);
+        $pdf .= $id . " 0 obj\n" . $body . "\nendobj\n";
+    }
+
+    $xrefPos = strlen($pdf);
+    $pdf .= "xref\n0 " . (max(array_keys($objects)) + 1) . "\n";
+    $pdf .= "0000000000 65535 f \n";
+    for ($i = 1; $i <= max(array_keys($objects)); $i++) {
+        $pdf .= sprintf("%010d 00000 n \n", $offsets[$i] ?? 0);
+    }
+    $pdf .= "trailer\n<< /Size " . (max(array_keys($objects)) + 1) . " /Root {$catalogObj} 0 R >>\nstartxref\n{$xrefPos}\n%%EOF";
+
+    if (ob_get_length()) {
+        ob_end_clean();
+    }
+
+    header('Content-Type: application/pdf');
+    header('Content-Disposition: attachment; filename="relatorio-' . date('Y-m-d') . '.pdf"');
+    header('Content-Length: ' . strlen($pdf));
+    echo $pdf;
+    exit();
+}
  
 // ─── Registrar lançamento (POST) ──────────────────────────────────────
 $msg_sucesso = '';
@@ -75,9 +195,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $desc    = trim($_POST['descricao'] ?? '');
             $cat     = trim($_POST['categoria_desp'] ?? '');
             $val_d   = floatval($_POST['valor_despesa'] ?? 0);
+            $usuario_id = $_SESSION['usuario_id'] ?? null;
  
-            $stmt = $pdo->prepare("INSERT INTO despesas (data_despesa, descricao, categoria, valor) VALUES (?,?,?,?)");
-            if ($stmt->execute([$data_d, $desc, $cat, $val_d])) {
+            $stmt = $pdo->prepare("INSERT INTO despesas (data_despesa, descricao, categoria, valor, usuario_id) VALUES (?,?,?,?,?)");
+            if ($stmt->execute([$data_d, $desc, $cat, $val_d, $usuario_id])) {
                 $msg_sucesso = 'Despesa registrada com sucesso!';
             } else {
                 $msg_erro = 'Erro ao registrar despesa.';
@@ -159,6 +280,62 @@ $grafico->execute([$data_inicio, $data_fim]);
 $dados_grafico = $grafico->fetchAll(PDO::FETCH_ASSOC);
 $labels_grafico = json_encode(array_map(fn($r) => date('d/m', strtotime($r['data_venda'])), $dados_grafico));
 $valores_grafico = json_encode(array_map(fn($r) => (float)$r['total_dia'], $dados_grafico));
+
+if ($exportar_pdf) {
+    $linhas_pdf = [];
+    $titulo_pdf = 'Relatório de Vendas';
+
+    if ($tipo === 'estoque') {
+        $titulo_pdf = 'Relatório de Estoque';
+    } elseif ($tipo === 'financeiro' && $is_gerente) {
+        $titulo_pdf = 'Relatório Financeiro';
+    }
+
+    $linhas_pdf[] = 'Período: ' . $label_periodo;
+    $linhas_pdf[] = 'Perfil: ' . ucfirst($perfil);
+    $linhas_pdf[] = 'Seção: ' . ucfirst($tipo);
+    $linhas_pdf[] = '';
+    $linhas_pdf[] = 'Resumo de vendas';
+    $linhas_pdf[] = 'Peso total vendido: ' . kg($kv['total_peso']);
+    $linhas_pdf[] = 'Faturamento: ' . brl($kv['total_valor']);
+    $linhas_pdf[] = 'Descontos: ' . brl($kv['total_desconto']);
+    $linhas_pdf[] = 'Quantidade de lançamentos: ' . $kv['total_registros'];
+
+    if ($is_gerente) {
+        $linhas_pdf[] = 'Lucro estimado: ' . brl($lucro_estimado);
+    }
+
+    if ($tipo === 'vendas') {
+        $linhas_pdf[] = '';
+        $linhas_pdf[] = 'Vendas do período';
+        foreach ($lista_vendas as $v) {
+            $linhas_pdf[] = date('d/m/Y H:i', strtotime($v['data_venda'])) . ' | ' . brl($v['valor_total']) . ' | desconto: ' . brl($v['desconto_aplicado']) . ' | peso: ' . kg($v['peso_total']) . ' | pagamento: ' . $v['forma_pagamento'];
+        }
+    }
+
+    if ($tipo === 'estoque') {
+        $linhas_pdf[] = '';
+        $linhas_pdf[] = 'Estoque';
+        foreach ($lista_estoque as $e) {
+            $linhas_pdf[] = $e['produto'] . ' | ' . ($e['categoria'] ?: '—') . ' | ' . number_format($e['quantidade'], 2, ',', '.') . ' ' . $e['unidade'] . ' | validade: ' . ($e['validade'] ? date('d/m/Y', strtotime($e['validade'])) : '—') . ' | status: ' . ucfirst($e['status']);
+        }
+    }
+
+    if ($tipo === 'financeiro' && $is_gerente) {
+        $linhas_pdf[] = '';
+        $linhas_pdf[] = 'Financeiro';
+        $linhas_pdf[] = 'Faturamento bruto: ' . brl($kv['total_valor']);
+        $linhas_pdf[] = 'Total de despesas: ' . brl($total_despesas);
+        $linhas_pdf[] = 'Lucro líquido: ' . brl($lucro_estimado);
+        $linhas_pdf[] = '';
+        $linhas_pdf[] = 'Despesas do período';
+        foreach ($lista_despesas as $d) {
+            $linhas_pdf[] = date('d/m/Y', strtotime($d['data_despesa'])) . ' | ' . $d['categoria'] . ' | ' . $d['descricao'] . ' | ' . brl($d['valor']);
+        }
+    }
+
+    gerar_pdf_simples($titulo_pdf, $linhas_pdf);
+}
  
 // Helper formatação
 function brl($v) { return 'R$ ' . number_format($v, 2, ',', '.'); }
@@ -222,6 +399,9 @@ function kg($v)  { return number_format($v, 2, ',', '.') . ' kg'; }
                 <span style="font-size:13px; color:var(--text-muted); align-self:center;">
                     <i class="fa fa-calendar-days"></i> <?= $label_periodo ?>
                 </span>
+                <a class="btn btn-secondary" href="?periodo=<?= urlencode($periodo) ?>&tipo=<?= urlencode($tipo) ?>&exportar=pdf" style="align-self:center; text-decoration:none;">
+                    <i class="fa fa-file-pdf"></i> Exportar PDF
+                </a>
             </form>
  
             <!-- KPIs RÁPIDOS -->
