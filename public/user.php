@@ -50,13 +50,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             try {
                 $login = gerarLoginPadrao($pdo);
-                $senhaPadrao = $login;
+                $senhaPadrao = 'User';
                 $senhaHash = password_hash($senhaPadrao, PASSWORD_DEFAULT);
 
                 $stmt = $pdo->prepare('INSERT INTO usuarios (nome, login, senha_hash, tipo, ativo) VALUES (?, ?, ?, ?, 1)');
                 $stmt->execute([$nome, $login, $senhaHash, $tipo]);
 
-                $_SESSION['flash_sucesso_usuario'] = 'Usuário criado com sucesso. Login padrão: ' . $login . ' | Senha padrão: ' . $senhaPadrao;
+                $_SESSION['flash_sucesso_usuario'] = 'Usuário criado com sucesso. Login padrão: ' . $login . ' | Senha padrão para funcionário e gerente: ' . $senhaPadrao;
             } catch (Throwable $e) {
                 $_SESSION['flash_erro_usuario'] = 'Não foi possível salvar o usuário.';
             }
@@ -160,7 +160,10 @@ $usuarios = $stmt ? $stmt->fetchAll(PDO::FETCH_ASSOC) : [];
 
     <div id="modalUsuario" class="modal">
         <div class="modal-content">
-            <h3>Novo Usuário</h3>
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:16px;">
+                <h3 style="margin:0;">Novo Usuário</h3>
+                <button type="button" class="btn btn-secondary" onclick="fecharModalUsuario()">Fechar</button>
+            </div>
 
             <form method="POST" action="user.php">
                 <input type="hidden" name="acao" value="salvar_usuario">
@@ -174,7 +177,7 @@ $usuarios = $stmt ? $stmt->fetchAll(PDO::FETCH_ASSOC) : [];
                 </select>
 
                 <p style="margin:12px 0 0; font-size:0.9rem; opacity:0.8;">
-                    O login será gerado automaticamente no padrão <strong>user</strong>, <strong>user2</strong>, <strong>user3</strong>...
+                    O login será gerado automaticamente no padrão <strong>user</strong>, <strong>user2</strong>, <strong>user3</strong>... e a senha padrão será <strong>User</strong> para funcionário e gerente.
                 </p>
 
                 <button class="btn" type="submit" style="margin-top:16px;">
@@ -193,9 +196,22 @@ $usuarios = $stmt ? $stmt->fetchAll(PDO::FETCH_ASSOC) : [];
             if (modal) modal.classList.add('show');
         }
 
+        function fecharModalUsuario() {
+            const modal = document.getElementById('modalUsuario');
+            const form = modal ? modal.querySelector('form') : null;
+            if (modal) modal.classList.remove('show');
+            if (form) form.reset();
+        }
+
         document.getElementById('modalUsuario')?.addEventListener('click', function (event) {
             if (event.target === this) {
-                this.classList.remove('show');
+                fecharModalUsuario();
+            }
+        });
+
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape') {
+                fecharModalUsuario();
             }
         });
     </script>
