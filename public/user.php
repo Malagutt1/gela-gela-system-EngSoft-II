@@ -1,14 +1,78 @@
-<?php 
+<?php
 session_start();
 require_once '../conecta.php';
+
 if (!isset($_SESSION['logado']) || $_SESSION['logado'] !== true) {
     header('Location: login');
     exit();
 }
+
 if (!isset($_SESSION['tipo']) || $_SESSION['tipo'] !== 'Gerente') {
     header('Location: vendas');
     exit();
 }
+
+function e($value): string
+{
+    return htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
+}
+
+function gerarLoginPadrao(PDO $pdo): string
+{
+    $base = 'user';
+    $login = $base;
+    $sufixo = 1;
+
+    $stmt = $pdo->prepare('SELECT 1 FROM usuarios WHERE login = ? LIMIT 1');
+
+    while (true) {
+        $stmt->execute([$login]);
+
+        if (!$stmt->fetchColumn()) {
+            return $login;
+        }
+
+        $login = $base . $sufixo;
+        $sufixo++;
+    }
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $acao = $_POST['acao'] ?? '';
+
+    if ($acao === 'salvar_usuario') {
+        $nome = trim((string) ($_POST['nome'] ?? ''));
+        $tipoEntrada = strtolower(trim((string) ($_POST['tipo'] ?? '')));
+        $tipo = $tipoEntrada === 'gerente' ? 'Gerente' : 'Funcionario';
+
+        if ($nome === '') {
+            $_SESSION['flash_erro_usuario'] = 'Informe o nome do usuário.';
+        } else {
+            try {
+                $login = gerarLoginPadrao($pdo);
+                $senhaPadrao = $login;
+                $senhaHash = password_hash($senhaPadrao, PASSWORD_DEFAULT);
+
+                $stmt = $pdo->prepare('INSERT INTO usuarios (nome, login, senha_hash, tipo, ativo) VALUES (?, ?, ?, ?, 1)');
+                $stmt->execute([$nome, $login, $senhaHash, $tipo]);
+
+                $_SESSION['flash_sucesso_usuario'] = 'Usuário criado com sucesso. Login padrão: ' . $login . ' | Senha padrão: ' . $senhaPadrao;
+            } catch (Throwable $e) {
+                $_SESSION['flash_erro_usuario'] = 'Não foi possível salvar o usuário.';
+            }
+        }
+    }
+
+    header('Location: user.php');
+    exit();
+}
+
+$flashSucesso = $_SESSION['flash_sucesso_usuario'] ?? '';
+$flashErro = $_SESSION['flash_erro_usuario'] ?? '';
+unset($_SESSION['flash_sucesso_usuario'], $_SESSION['flash_erro_usuario']);
+
+$stmt = $pdo->query('SELECT usuario_id, nome, login, tipo, ativo FROM usuarios ORDER BY CASE WHEN tipo = "Gerente" THEN 0 ELSE 1 END, nome ASC');
+$usuarios = $stmt ? $stmt->fetchAll(PDO::FETCH_ASSOC) : [];
 ?>
 
 <!DOCTYPE html>
@@ -40,179 +104,52 @@ if (!isset($_SESSION['tipo']) || $_SESSION['tipo'] !== 'Gerente') {
 
             <section class="main">
 
-                <div style="display:flex; justify-content:space-between;">
+                <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;">
                     <h2>Usuários do Sistema</h2>
                     <button class="btn" onclick="abrirModalUsuario()">Novo Usuário</button>
                 </div>
 
-                <div class="box">
+                <?php if ($flashSucesso !== ''): ?>
+                    <div class="box" style="margin-top:16px; border-left:4px solid #2ecc71; background:#eefbf2;">
+                        <?= e($flashSucesso) ?>
+                    </div>
+                <?php endif; ?>
+
+                <?php if ($flashErro !== ''): ?>
+                    <div class="box" style="margin-top:16px; border-left:4px solid #e74c3c; background:#fdf0ee;">
+                        <?= e($flashErro) ?>
+                    </div>
+                <?php endif; ?>
+
+                <div class="box" style="margin-top:20px;">
                     <table>
                         <thead>
                             <tr>
                                 <th>Nome</th>
                                 <th>Login</th>
-                                <th>Tipo</th>
-                                <th>Ações</th>
+                                <th>Cargo</th>
                             </tr>
                         </thead>
 
-                        <tbody id="tabela-usuarios">
-                            <tr>
-                                <td>Admin-TDS</td>
-                                <td>admin-TDS</td>
-                                <td><span class="badge danger">Gerentes</span></td>
-                                <td>
-                                    <button class="btn-icon"><i class="fa fa-pen"></i></button>
-                                    <button class="btn-icon danger" onclick="excluirUsuario(this)">
-                                        <i class="fa fa-trash"></i>
-                                    </button>
-                                </td>
-                            </tr>
-
-                            <tr>
-                                <td>Kauã Malagutti</td>
-                                <td>kaua</td>
-                                <td><span class="badge danger">Gerentes</span></td>
-                                <td>
-                                    <button class="btn-icon"><i class="fa fa-pen"></i></button>
-                                    <button class="btn-icon danger" onclick="excluirUsuario(this)">
-                                        <i class="fa fa-trash"></i>
-                                    </button>
-                                </td>
-                            </tr>
-
-                            <tr>
-                                <td>Arthur Moro </td>
-                                <td>arthur</td>
-                                <td><span class="badge ok">Funcionario</span></td>
-                                <td>
-                                    <button class="btn-icon"><i class="fa fa-pen"></i></button>
-                                    <button class="btn-icon danger" onclick="excluirUsuario(this)">
-                                        <i class="fa fa-trash"></i>
-                                    </button>
-                                </td>
-                            </tr>
-
-                            <tr>
-                                <td>Arthur Moro </td>
-                                <td>arthur</td>
-                                <td><span class="badge ok">Funcionario</span></td>
-                                <td>
-                                    <button class="btn-icon"><i class="fa fa-pen"></i></button>
-                                    <button class="btn-icon danger" onclick="excluirUsuario(this)">
-                                        <i class="fa fa-trash"></i>
-                                    </button>
-                                </td>
-                            </tr>
-
-                            <tr>
-                                <td>Francisco Lessa</td>
-                                <td>francisco</td>
-                                <td><span class="badge ok">Funcionario</span></td>
-                                <td>
-                                    <button class="btn-icon"><i class="fa fa-pen"></i></button>
-                                    <button class="btn-icon danger" onclick="excluirUsuario(this)">
-                                        <i class="fa fa-trash"></i>
-                                    </button>
-                                </td>
-                            </tr>
-
-                            <tr>
-                                <td>Luigi Pretto</td>
-                                <td>luigi</td>
-                                <td><span class="badge ok">Funcionario</span></td>
-                                <td>
-                                    <button class="btn-icon"><i class="fa fa-pen"></i></button>
-                                    <button class="btn-icon danger" onclick="excluirUsuario(this)">
-                                        <i class="fa fa-trash"></i>
-                                    </button>
-                                </td>
-                            </tr>
-
-                            <tr>
-                                <td>Taynan Brighenti</td>
-                                <td>taynan</td>
-                                <td><span class="badge ok">Funcionario</span></td>
-                                <td>
-                                    <button class="btn-icon"><i class="fa fa-pen"></i></button>
-                                    <button class="btn-icon danger" onclick="excluirUsuario(this)">
-                                        <i class="fa fa-trash"></i>
-                                    </button>
-                                </td>
-                            </tr>
-
-                            <tr>
-                                <td>Samuel Boita </td>
-                                <td>samuel</td>
-                                <td><span class="badge ok">Funcionario</span></td>
-                                <td>
-                                    <button class="btn-icon"><i class="fa fa-pen"></i></button>
-                                    <button class="btn-icon danger" onclick="excluirUsuario(this)">
-                                        <i class="fa fa-trash"></i>
-                                    </button>
-                                </td>
-                            </tr>
-
-                            <tr>
-                                <td>Pedro</td>
-                                <td>pedro</td>
-                                <td><span class="badge ok">Funcionario</span></td>
-                                <td>
-                                    <button class="btn-icon"><i class="fa fa-pen"></i></button>
-                                    <button class="btn-icon danger" onclick="excluirUsuario(this)">
-                                        <i class="fa fa-trash"></i>
-                                    </button>
-                                </td>
-                            </tr>
-
-                            <tr>
-                                <td>Rikelme</td>
-                                <td>rikelme</td>
-                                <td><span class="badge ok">Funcionario</span></td>
-                                <td>
-                                    <button class="btn-icon"><i class="fa fa-pen"></i></button>
-                                    <button class="btn-icon danger" onclick="excluirUsuario(this)">
-                                        <i class="fa fa-trash"></i>
-                                    </button>
-                                </td>
-                            </tr>
-
-                            <tr>
-                                <td>Victor</td>
-                                <td>victor</td>
-                                <td><span class="badge ok">Funcionario</span></td>
-                                <td>
-                                    <button class="btn-icon"><i class="fa fa-pen"></i></button>
-                                    <button class="btn-icon danger" onclick="excluirUsuario(this)">
-                                        <i class="fa fa-trash"></i>
-                                    </button>
-                                </td>
-                            </tr>
-
-                            <tr>
-                                <td>Lucas</td>
-                                <td>lucas</td>
-                                <td><span class="badge ok">Funcionario</span></td>
-                                <td>
-                                    <button class="btn-icon"><i class="fa fa-pen"></i></button>
-                                    <button class="btn-icon danger" onclick="excluirUsuario(this)">
-                                        <i class="fa fa-trash"></i>
-                                    </button>
-                                </td>
-                            </tr>
-
-                            <tr>
-                                <td>David</td>
-                                <td>david</td>
-                                <td><span class="badge ok">Funcionario</span></td>
-                                <td>
-                                    <button class="btn-icon"><i class="fa fa-pen"></i></button>
-                                    <button class="btn-icon danger" onclick="excluirUsuario(this)">
-                                        <i class="fa fa-trash"></i>
-                                    </button>
-                                </td>
-                            </tr>
-
+                        <tbody>
+                            <?php if (!empty($usuarios)): ?>
+                                <?php foreach ($usuarios as $usuario): ?>
+                                    <?php
+                                        $tipo = (string) ($usuario['tipo'] ?? 'Funcionario');
+                                        $classeTipo = $tipo === 'Gerente' ? 'danger' : 'ok';
+                                        $rotuloTipo = $tipo === 'Gerente' ? 'Gerente' : 'Funcionário';
+                                    ?>
+                                    <tr>
+                                        <td><?= e($usuario['nome'] ?? '') ?></td>
+                                        <td><?= e($usuario['login'] ?? '') ?></td>
+                                        <td><span class="badge <?= e($classeTipo) ?>"><?= e($rotuloTipo) ?></span></td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <tr>
+                                    <td colspan="3" style="text-align:center;">Nenhum usuário cadastrado.</td>
+                                </tr>
+                            <?php endif; ?>
                         </tbody>
                     </table>
                 </div>
@@ -221,22 +158,26 @@ if (!isset($_SESSION['tipo']) || $_SESSION['tipo'] !== 'Gerente') {
         </main>
     </div>
 
-    <!-- MODAL -->
     <div id="modalUsuario" class="modal">
         <div class="modal-content">
             <h3>Novo Usuário</h3>
 
-            <form onsubmit="salvarUsuario(event)">
-                <input type="text" id="u-nome" placeholder="Nome completo" required>
-                <input type="text" id="u-login" placeholder="Login/Usuário" required>
+            <form method="POST" action="user.php">
+                <input type="hidden" name="acao" value="salvar_usuario">
 
-                <select id="u-tipo" required>
-                    <option value="">Selecione o tipo de acesso</option>
-                    <option value="funcionario">Funcionário</option>
-                    <option value="gerente">Gerente</option>
+                <input type="text" name="nome" placeholder="Nome completo" required>
+
+                <select name="tipo" required>
+                    <option value="">Selecione o cargo</option>
+                    <option value="Funcionario">Funcionário</option>
+                    <option value="Gerente">Gerente</option>
                 </select>
 
-                <button class="btn" type="submit">
+                <p style="margin:12px 0 0; font-size:0.9rem; opacity:0.8;">
+                    O login será gerado automaticamente no padrão <strong>user</strong>, <strong>user2</strong>, <strong>user3</strong>...
+                </p>
+
+                <button class="btn" type="submit" style="margin-top:16px;">
                     <i class="fa-solid fa-check"></i> Salvar Usuário
                 </button>
             </form>
@@ -247,66 +188,16 @@ if (!isset($_SESSION['tipo']) || $_SESSION['tipo'] !== 'Gerente') {
     <script>
         function abrirModalUsuario() {
             const modal = document.getElementById('modalUsuario');
+            const form = modal ? modal.querySelector('form') : null;
+            if (form) form.reset();
             if (modal) modal.classList.add('show');
         }
 
-        function fecharModalUsuario() {
-            const modal = document.getElementById('modalUsuario');
-            const form = modal ? modal.querySelector('form') : null;
-            if (modal) modal.classList.remove('show');
-            if (form) form.reset();
-        }
-
-        function adicionarLinha(tabelaId, conteudoHTML) {
-            const tabela = document.getElementById(tabelaId);
-            if (tabela) tabela.innerHTML += conteudoHTML;
-        }
-
-        function excluirLinha(btn, mensagemConfirmacao = 'Deseja excluir este item?') {
-            if (confirm(mensagemConfirmacao)) {
-                const linha = btn.closest('tr');
-                if (linha) linha.remove();
-                alert('Item removido!');
+        document.getElementById('modalUsuario')?.addEventListener('click', function (event) {
+            if (event.target === this) {
+                this.classList.remove('show');
             }
-        }
-
-        function excluirUsuario(btn) {
-            excluirLinha(btn, 'Deseja excluir este usuário?');
-        }
-
-        function salvarUsuario(e) {
-            e.preventDefault();
-
-            const nome = document.getElementById('u-nome').value.trim();
-            const login = document.getElementById('u-login').value.trim();
-            const tipo = document.getElementById('u-tipo').value;
-
-            if (!nome || !login || !tipo) {
-                alert('Preencha todos os campos.');
-                return;
-            }
-
-            const labelTipo = tipo === 'gerente' ? 'Gerentes' : 'Funcionario';
-            const classeTipo = tipo === 'gerente' ? 'danger' : 'ok';
-
-            const novaLinha = `
-                <tr>
-                    <td>${nome}</td>
-                    <td>${login}</td>
-                    <td><span class="badge ${classeTipo}">${labelTipo}</span></td>
-                    <td>
-                        <button class="btn-icon"><i class="fa fa-pen"></i></button>
-                        <button class="btn-icon danger" onclick="excluirUsuario(this)">
-                            <i class="fa fa-trash"></i>
-                        </button>
-                    </td>
-                </tr>
-            `;
-
-            adicionarLinha('tabela-usuarios', novaLinha);
-            alert('Usuário criado!');
-            fecharModalUsuario();
-        }
+        });
     </script>
 
 </body>
