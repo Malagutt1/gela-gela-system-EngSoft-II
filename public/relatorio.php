@@ -148,7 +148,7 @@ function pdf_rgb_str(string $hex): string {
     return number_format($r, 3, '.', '') . ' ' . number_format($g, 3, '.', '') . ' ' . number_format($b, 3, '.', '');
 }
 
-function gerar_pdf_profissional(string $titulo, array $blocos): void {
+function gerar_pdf(string $titulo, array $blocos): void {
     $pages = [];
     $page = ['items' => [], 'lines' => 0];
     $maxLines = 30;
@@ -316,8 +316,9 @@ function gerar_pdf_profissional(string $titulo, array $blocos): void {
 }
  
 // ─── Registrar lançamento (POST) ──────────────────────────────────────
-$msg_sucesso = '';
-$msg_erro    = '';
+$msg_sucesso = $_SESSION['msg_sucesso'] ?? '';
+$msg_erro    = $_SESSION['msg_erro'] ?? '';
+unset($_SESSION['msg_sucesso'], $_SESSION['msg_erro']);
  
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $acao = $_POST['acao'] ?? '';
@@ -332,16 +333,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
  
         $stmt = $pdo->prepare("INSERT INTO vendas (data_venda, usuario_id, peso_total, valor_total, forma_pagamento) VALUES (?,?,?,?,?)");
         if ($stmt->execute([$data_v, $usuario_id, $peso, $valor, $forma_pagamento])) {
-            $msg_sucesso = 'Venda registrada com sucesso!';
+            $_SESSION['msg_sucesso'] = 'Venda registrada com sucesso!';
         } else {
-            $msg_erro = 'Erro ao registrar venda.';
+            $_SESSION['msg_erro'] = 'Erro ao registrar venda.';
         }
     }
  
     // Lançar despesa (gerente)
     if ($acao === 'lancar_despesa' && $is_gerente) {
         if (!$tem_tabela_despesas) {
-            $msg_erro = 'Tabela de despesas não encontrada no banco de dados.';
+            $_SESSION['msg_erro'] = 'Tabela de despesas não encontrada no banco de dados.';
         } else {
             $data_d  = $_POST['data_despesa'] ?? date('Y-m-d');
             $desc    = trim($_POST['descricao'] ?? '');
@@ -351,12 +352,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
  
             $stmt = $pdo->prepare("INSERT INTO despesas (data_despesa, descricao, categoria, valor, usuario_id) VALUES (?,?,?,?,?)");
             if ($stmt->execute([$data_d, $desc, $cat, $val_d, $usuario_id])) {
-                $msg_sucesso = 'Despesa registrada com sucesso!';
+                $_SESSION['msg_sucesso'] = 'Despesa registrada com sucesso!';
             } else {
-                $msg_erro = 'Erro ao registrar despesa.';
+                $_SESSION['msg_erro'] = 'Erro ao registrar despesa.';
             }
         }
     }
+
+    // Redireciona para si mesmo mantendo os filtros ativos e limpando o POST (Evita o bug do F5)
+    header("Location: relatorio?periodo=" . urlencode($periodo) . "&tipo=" . urlencode($tipo));
+    exit();
 }
  
 // ─── Queries de dados ─────────────────────────────────────────────────
@@ -383,10 +388,6 @@ if ($is_gerente && $tem_tabela_despesas) {
  
 $lucro_estimado = $kv['total_valor'] - $kv['total_desconto'] - $total_despesas;
  
-// Tabela de vendas
-$rows_vendas = $pdo->prepare("SELECT * FROM vendas WHERE data_venda BETWEEN ? AND ? ORDER BY data_venda DESC");
-$rows_vendas->execute([$data_inicio, $data_fim]);
-$lista_vendas = $rows_vendas->fetchAll(PDO::FETCH_ASSOC);
 
 $rows_vendas_detalhadas = $pdo->prepare(<<<SQL
     SELECT
@@ -503,7 +504,7 @@ if ($exportar_pdf) {
         }
     }
 
-    gerar_pdf_profissional($titulo_pdf, $blocos_pdf);
+    gerar_pdf($titulo_pdf, $blocos_pdf);
 }
  
 // Helper formatação
@@ -681,13 +682,6 @@ function kg($v)  { return number_format($v, 2, ',', '.') . ' kg'; }
                 <div class="box">
                     <div class="header-box">
                         <h3><i class="fa fa-boxes-stacked" style="color:var(--secondary)"></i> Controle de Estoque</h3>
-                        <div style="display:flex; gap:10px; align-items:center;">
-                            <span style="font-size:12px; color:var(--text-muted);">
-                                <span class="status-dot danger"></span>Crítico &nbsp;
-                                <span class="status-dot warn"></span>Atenção &nbsp;
-                                <span class="status-dot ok"></span>Normal
-                            </span>
-                        </div>
                     </div>
  
                     <?php if (empty($lista_estoque)): ?>
@@ -842,47 +836,6 @@ function kg($v)  { return number_format($v, 2, ',', '.') . ' kg'; }
  
         </section>
     </main>
-</div>
- 
-<!-- ═══ MODAL: REGISTRAR VENDA ════════════════════════════════════════ -->
-<div class="modal" id="modal-venda">
-    <div class="modal-content">
-        <h3><i class="fa fa-cart-shopping" style="color:var(--primary)"></i> Registrar Venda</h3>
-        <form method="POST">
-            <input type="hidden" name="acao" value="lancar_venda">
-            <div class="grid-form">
-                <div class="form-group">
-                    <label>Data da Venda</label>
-                    <input type="date" name="data_venda" value="<?= date('Y-m-d') ?>" required>
-                </div>
-                <div class="form-group">
-                    <label>Peso Vendido (kg)</label>
-                    <input type="number" name="peso_total" step="0.01" min="0" placeholder="Ex: 12.50" required>
-                </div>
-                <div class="form-group">
-                    <label>Valor Total (R$)</label>
-                    <input type="number" name="valor_total" step="0.01" min="0" placeholder="Ex: 350.00" required>
-                </div>
-                <div class="form-group">
-                    <label>Forma de Pagamento</label>
-                    <select name="forma_pagamento" required>
-                        <option value="Dinheiro">Dinheiro</option>
-                        <option value="Cartao_Credito">Cartão de Crédito</option>
-                        <option value="Cartao_Debito">Cartão de Débito</option>
-                        <option value="Pix">Pix</option>
-                    </select>
-                </div>
-            </div>
-            <div style="display:flex; gap:10px; margin-top:5px;">
-                <button type="submit" class="btn btn-secondary" style="flex:1; background:var(--secondary); color:#fff;">
-                    <i class="fa fa-floppy-disk"></i> Salvar
-                </button>
-                <button type="button" class="btn btn-secondary" style="flex:0.4;" onclick="fecharModal('modal-venda')">
-                    Cancelar
-                </button>
-            </div>
-        </form>
-    </div>
 </div>
  
 <?php if ($is_gerente): ?>
