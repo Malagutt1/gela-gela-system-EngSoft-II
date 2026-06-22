@@ -19,7 +19,7 @@ if (!isset($_SESSION['tipo']) || $_SESSION['tipo'] !== 'Gerente') {
     <title>Gela-Gela | Backup</title>
     <link rel="icon" type="image/png" href="https://img.icons8.com/ios-filled/50/ff4d7d/ice-cream-bowl.png">
 
-    <link rel="stylesheet" href="ASSETS/CSS/style.css">
+    <link rel="stylesheet" href="/ASSETS/CSS/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 

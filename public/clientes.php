@@ -365,7 +365,7 @@ $feedbacks = $stmt->fetchAll();
         </div>
     </div>
 
-    <script src="ASSETS/JS/sidebar.js"></script>
+    <script src="/ASSETS/JS/sidebar.js"></script>
 
     <script>
         function aplicarFiltros() {
