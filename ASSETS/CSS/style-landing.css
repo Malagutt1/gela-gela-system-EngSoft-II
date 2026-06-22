@@ -2,7 +2,7 @@
    Gela-Gela Landing Page - Product Carousel with Scroll
    ========================================================================== */
 
-   :root {
+:root {
     --primary: #c6746a;
     --secondary: #11417b;
     --accent-pink: #facee1;
@@ -23,6 +23,7 @@ html, body {
     width: 100%;
     font-family: 'Poppins', sans-serif;
     background-color: #f0f0f0;
+    overflow: hidden;
 }
 
 body {
@@ -56,7 +57,7 @@ body {
 /* ==========================================
    APP WINDOW
    ========================================== */
-.app-window {
+#appWindow {
     position: fixed;
     top: 50%;
     left: 50%;
@@ -72,6 +73,7 @@ body {
     z-index: 100;
     display: flex;
     animation: windowSlideIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+    pointer-events: auto;
 }
 
 @keyframes windowSlideIn {
@@ -554,19 +556,32 @@ body {
 /* ==========================================
    ABOUT SECTION
    ========================================== */
-.about-section {
-    min-height: 100vh;
+#aboutSection {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 80px 40px;
     background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 50%, #e8e8e8 100%);
-    margin-top: 100vh;
-    position: relative;
-    overflow: hidden;
+    z-index: 50;
+    opacity: 0;
+    transform: translateX(100px);
+    pointer-events: none;
+    transition: all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+    overflow-y: auto;
 }
 
-.about-section::before {
+#aboutSection.visible {
+    opacity: 1;
+    transform: translateX(0);
+    pointer-events: auto;
+}
+
+#aboutSection::before {
     content: '';
     position: absolute;
     top: -50%;
@@ -577,7 +592,7 @@ body {
     pointer-events: none;
 }
 
-.about-section::after {
+#aboutSection::after {
     content: '';
     position: absolute;
     bottom: -50%;
@@ -597,6 +612,15 @@ body {
 
 .about-content {
     opacity: 0;
+    transform: translateX(20px);
+    animation: fadeInLeft 0.8s ease-out 0.2s forwards;
+}
+
+@keyframes fadeInLeft {
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
 }
 
 .about-content h2 {
@@ -639,6 +663,25 @@ body {
     transition: all 0.3s ease;
     overflow: hidden;
     opacity: 0;
+    animation: featureFadeIn 0.8s ease-out forwards;
+}
+
+@keyframes featureFadeIn {
+    to {
+        opacity: 1;
+    }
+}
+
+.feature:nth-child(1) {
+    animation-delay: 0.3s;
+}
+
+.feature:nth-child(2) {
+    animation-delay: 0.4s;
+}
+
+.feature:nth-child(3) {
+    animation-delay: 0.5s;
 }
 
 .feature::before {
@@ -693,19 +736,32 @@ body {
 /* ==========================================
    LOCATION SECTION
    ========================================== */
-.location-section {
-    min-height: 100vh;
+#locationSection {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 80px 40px;
     background: linear-gradient(135deg, #0a2540 0%, #1a4d7a 50%, #0f3a5f 100%);
-    margin-top: 0;
-    position: relative;
-    overflow: hidden;
+    z-index: 50;
+    opacity: 0;
+    transform: translateX(100px);
+    pointer-events: none;
+    transition: all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+    overflow-y: auto;
 }
 
-.location-section::before {
+#locationSection.visible {
+    opacity: 1;
+    transform: translateX(0);
+    pointer-events: auto;
+}
+
+#locationSection::before {
     content: '';
     position: absolute;
     top: 0;
@@ -731,6 +787,7 @@ body {
 
 .location-info {
     opacity: 0;
+    animation: fadeInLeft 0.8s ease-out 0.2s forwards;
 }
 
 .location-info h2 {
@@ -761,6 +818,25 @@ body {
     position: relative;
     overflow: hidden;
     opacity: 0;
+    animation: blockFadeIn 0.8s ease-out forwards;
+}
+
+@keyframes blockFadeIn {
+    to {
+        opacity: 1;
+    }
+}
+
+.address-block {
+    animation-delay: 0.3s;
+}
+
+.hours-block {
+    animation-delay: 0.4s;
+}
+
+.contact-block {
+    animation-delay: 0.5s;
 }
 
 .address-block::before,
@@ -833,6 +909,14 @@ body {
     position: relative;
     opacity: 0;
     transform: scale(0.9);
+    animation: mapFadeIn 0.8s ease-out 0.3s forwards;
+}
+
+@keyframes mapFadeIn {
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
 }
 
 .location-map::before {
@@ -858,7 +942,7 @@ body {
    RESPONSIVIDADE
    ========================================== */
 @media (max-width: 1024px) {
-    .app-window {
+    #appWindow {
         width: 95vw;
         height: 90vh;
     }
@@ -897,7 +981,7 @@ body {
         height: 50%;
     }
 
-    .app-window {
+    #appWindow {
         width: 98vw;
         height: 95vh;
     }
@@ -941,8 +1025,8 @@ body {
         height: 200px;
     }
 
-    .about-section,
-    .location-section {
+    #aboutSection,
+    #locationSection {
         padding: 60px 20px;
     }
 
@@ -957,10 +1041,13 @@ body {
 }
 
 @media (max-width: 480px) {
-    .app-window {
+    #appWindow {
         width: 100vw;
         height: 100vh;
         border-radius: 0;
+        top: 0;
+        left: 0;
+        transform: none;
     }
 
     .split-side {
@@ -976,10 +1063,9 @@ body {
         height: 150px;
     }
 
-    .about-section,
-    .location-section {
+    #aboutSection,
+    #locationSection {
         padding: 40px 15px;
-        min-height: auto;
     }
 
     .about-content h2,

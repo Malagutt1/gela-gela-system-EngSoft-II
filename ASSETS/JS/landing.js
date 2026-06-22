@@ -37,13 +37,11 @@ const products = [
 ];
 
 let currentProduct = 0;
-let scrollTimeout;
 let isScrolling = false;
-let isInCarousel = true;
-let totalScrollDelta = 0;
 let scrollPhase = 0; // 0: Carrossel, 1: Sobre, 2: Localização
 let lastScrollTime = 0;
 const SCROLL_DEBOUNCE = 1000; // ms entre transições
+let wheelScrollDelta = 0;
 
 // ==========================================
 // INICIALIZAÇÃO
@@ -59,67 +57,99 @@ function initializeApp() {
     initProductIndicators();
     initCTAButton();
     updateProductInfo(0);
+    animateOnScroll();
+    // Previne scroll padrão do body
+    document.body.style.overflow = 'hidden';
 }
 
 // ==========================================
-// SCROLL NAVIGATION (Horizontal Scroll)
+// SCROLL NAVIGATION (Wheel + Keyboard)
 // ==========================================
 function initScrollNavigation() {
-    let scrollDelta = 0;
-
+    // WHEEL EVENT - APENAS PARA CARROSSEL
     document.addEventListener('wheel', function(e) {
-        // Previne scroll padrão
+        const now = Date.now();
+        
+        // Se está fora do carrossel, permite scroll normal
+        if (scrollPhase !== 0) {
+            return;
+        }
+
+        // Está no carrossel, previne e controla
         e.preventDefault();
 
-        const now = Date.now();
+        if (isScrolling) return;
 
-        // Se está scrollando no carrossel
+        wheelScrollDelta += e.deltaY;
+
+        if (Math.abs(wheelScrollDelta) > 100) {
+            if (wheelScrollDelta > 0) {
+                // Scroll down = próximo produto
+                if (currentProduct < products.length - 1) {
+                    nextProduct();
+                    wheelScrollDelta = 0;
+                } else if (now - lastScrollTime > SCROLL_DEBOUNCE) {
+                    // Último produto - transition para seção About
+                    lastScrollTime = now;
+                    transitionToAboutSection();
+                    wheelScrollDelta = 0;
+                }
+            } else {
+                // Scroll up = produto anterior
+                if (currentProduct > 0) {
+                    previousProduct();
+                    wheelScrollDelta = 0;
+                }
+            }
+        }
+    }, { passive: false });
+
+    // KEYBOARD EVENT
+    document.addEventListener('keydown', function(e) {
+        const now = Date.now();
+        
+        if (now - lastScrollTime < SCROLL_DEBOUNCE) return;
+
         if (scrollPhase === 0) {
+            // No carrossel
             if (isScrolling) return;
 
-            scrollDelta += e.deltaY;
-
-            // Threshold para mudança de produto (100px de scroll)
-            if (Math.abs(scrollDelta) > 100) {
-                if (scrollDelta > 0) {
-                    // Scroll down = próximo produto
-                    if (currentProduct < products.length - 1) {
-                        nextProduct();
-                        scrollDelta = 0;
-                    } else if (now - lastScrollTime > SCROLL_DEBOUNCE) {
-                        // Último produto - transition para seção About
-                        lastScrollTime = now;
-                        transitionToAboutSection();
-                        scrollDelta = 0;
-                    }
+            if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+                e.preventDefault();
+                if (currentProduct < products.length - 1) {
+                    lastScrollTime = now;
+                    nextProduct();
                 } else {
-                    // Scroll up = produto anterior
-                    if (currentProduct > 0) {
-                        previousProduct();
-                        scrollDelta = 0;
-                    }
+                    lastScrollTime = now;
+                    transitionToAboutSection();
+                }
+            } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+                e.preventDefault();
+                if (currentProduct > 0) {
+                    lastScrollTime = now;
+                    previousProduct();
                 }
             }
         } else if (scrollPhase === 1) {
-            // Estamos na seção About
-            if (e.deltaY > 0 && now - lastScrollTime > SCROLL_DEBOUNCE) {
-                // Scroll down = vai para Location
+            // Na seção About
+            if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+                e.preventDefault();
                 lastScrollTime = now;
                 transitionToLocationSection();
-            } else if (e.deltaY < 0 && now - lastScrollTime > SCROLL_DEBOUNCE) {
-                // Scroll up = volta para Carrossel
+            } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+                e.preventDefault();
                 lastScrollTime = now;
                 transitionToCarousel();
             }
         } else if (scrollPhase === 2) {
-            // Estamos na seção Location
-            if (e.deltaY < 0 && now - lastScrollTime > SCROLL_DEBOUNCE) {
-                // Scroll up = volta para About
+            // Na seção Location
+            if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+                e.preventDefault();
                 lastScrollTime = now;
                 transitionToAboutSection();
             }
         }
-    }, { passive: false });
+    });
 }
 
 // Próximo produto
@@ -174,8 +204,10 @@ function transitionProduct() {
 // TRANSIÇÕES DE SEÇÃO
 // ==========================================
 function transitionToAboutSection() {
-    const appWindow = document.querySelector('.app-window');
-    const aboutSection = document.querySelector('.about-section');
+    const appWindow = document.getElementById('appWindow');
+    const aboutSection = document.getElementById('aboutSection');
+    
+    if (!appWindow || !aboutSection) return;
     
     scrollPhase = 1;
 
@@ -185,18 +217,23 @@ function transitionToAboutSection() {
         opacity: 0,
         scale: 0.9,
         y: -50,
-        ease: 'power2.in'
+        ease: 'power2.in',
+        pointerEvents: 'none'
     });
 
     // Anima entrada da seção About
     gsap.to(aboutSection, {
         duration: 0.8,
         opacity: 1,
-        x: 0,
+        transform: 'translateX(0)',
         ease: 'power2.out',
-        delay: 0.2
+        delay: 0.2,
+        pointerEvents: 'auto'
     });
 
+    // Ativa elementos da seção
+    aboutSection.classList.add('visible');
+    
     // Scroll suave para a seção
     gsap.to(window, {
         duration: 1.2,
@@ -208,8 +245,10 @@ function transitionToAboutSection() {
 }
 
 function transitionToLocationSection() {
-    const aboutSection = document.querySelector('.about-section');
-    const locationSection = document.querySelector('.location-section');
+    const aboutSection = document.getElementById('aboutSection');
+    const locationSection = document.getElementById('locationSection');
+
+    if (!aboutSection || !locationSection) return;
 
     scrollPhase = 2;
 
@@ -217,18 +256,23 @@ function transitionToLocationSection() {
     gsap.to(aboutSection, {
         duration: 0.8,
         opacity: 0,
-        x: -50,
-        ease: 'power2.in'
+        transform: 'translateX(-50px)',
+        ease: 'power2.in',
+        pointerEvents: 'none'
     });
 
     // Anima entrada da seção Location
     gsap.to(locationSection, {
         duration: 0.8,
         opacity: 1,
-        x: 0,
+        transform: 'translateX(0)',
         ease: 'power2.out',
-        delay: 0.2
+        delay: 0.2,
+        pointerEvents: 'auto'
     });
+
+    // Ativa elementos da seção
+    locationSection.classList.add('visible');
 
     // Scroll suave para a seção
     gsap.to(window, {
@@ -241,18 +285,36 @@ function transitionToLocationSection() {
 }
 
 function transitionToCarousel() {
-    const appWindow = document.querySelector('.app-window');
-    const aboutSection = document.querySelector('.about-section');
+    const appWindow = document.getElementById('appWindow');
+    const aboutSection = document.getElementById('aboutSection');
+    const locationSection = document.getElementById('locationSection');
+
+    if (!appWindow || !aboutSection) return;
 
     scrollPhase = 0;
 
-    // Anima saída da seção About
+    // Remove visibilidade de outras seções
+    aboutSection.classList.remove('visible');
+    if (locationSection) locationSection.classList.remove('visible');
+
+    // Anima saída das seções
     gsap.to(aboutSection, {
         duration: 0.8,
         opacity: 0,
-        x: 50,
-        ease: 'power2.in'
+        transform: 'translateX(50px)',
+        ease: 'power2.in',
+        pointerEvents: 'none'
     });
+
+    if (locationSection) {
+        gsap.to(locationSection, {
+            duration: 0.8,
+            opacity: 0,
+            transform: 'translateX(50px)',
+            ease: 'power2.in',
+            pointerEvents: 'none'
+        });
+    }
 
     // Anima entrada do app-window
     gsap.to(appWindow, {
@@ -261,7 +323,8 @@ function transitionToCarousel() {
         scale: 1,
         y: 0,
         ease: 'power2.out',
-        delay: 0.2
+        delay: 0.2,
+        pointerEvents: 'auto'
     });
 
     // Scroll suave para o topo
@@ -282,6 +345,8 @@ function updateProductInfo(index) {
     const productName = document.getElementById('productName');
     const productDescription = document.getElementById('productDescription');
     const moreInfoText = document.getElementById('moreInfoText');
+
+    if (!productName || !productDescription || !moreInfoText) return;
 
     // Animação de mudança de texto
     gsap.to([productName, productDescription, moreInfoText], {
@@ -336,7 +401,9 @@ function updateIndicators(index) {
     indicators.forEach(indicator => {
         indicator.classList.remove('active');
     });
-    indicators[index].classList.add('active');
+    if (indicators[index]) {
+        indicators[index].classList.add('active');
+    }
 }
 
 // ==========================================
@@ -539,6 +606,38 @@ function playSound(soundName) {
     } catch (e) {
         console.warn('Audio Context não disponível:', e.message);
     }
+}
+
+// ==========================================
+// ANIMATE ON SCROLL
+// ==========================================
+function animateOnScroll() {
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -100px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateX(0)';
+            }
+        });
+    }, observerOptions);
+
+    // Observar elementos de seções
+    const aboutContent = document.querySelector('.about-content');
+    const aboutFeatures = document.querySelectorAll('.feature');
+    const locationInfo = document.querySelector('.location-info');
+    const locationBlocks = document.querySelectorAll('.address-block, .hours-block, .contact-block');
+    const locationMap = document.querySelector('.location-map');
+
+    if (aboutContent) observer.observe(aboutContent);
+    aboutFeatures.forEach(feature => observer.observe(feature));
+    if (locationInfo) observer.observe(locationInfo);
+    locationBlocks.forEach(block => observer.observe(block));
+    if (locationMap) observer.observe(locationMap);
 }
 
 // ==========================================
