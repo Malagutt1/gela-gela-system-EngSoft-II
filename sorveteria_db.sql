@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 28/04/2026 às 03:38
+-- Tempo de geração: 22/06/2026 às 05:14
 -- Versão do servidor: 10.4.32-MariaDB
 -- Versão do PHP: 8.2.12
 
@@ -20,8 +20,22 @@ SET time_zone = "+00:00";
 --
 -- Banco de dados: `sorveteria_db`
 --
-CREATE DATABASE IF NOT EXISTS `sorveteria_db` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE `sorveteria_db`;
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `despesas`
+--
+
+CREATE TABLE `despesas` (
+  `despesa_id` int(11) NOT NULL,
+  `data_despesa` date NOT NULL,
+  `descricao` varchar(255) NOT NULL,
+  `categoria` varchar(100) NOT NULL DEFAULT 'Geral',
+  `valor` decimal(10,2) NOT NULL DEFAULT 0.00,
+  `usuario_id` int(11) DEFAULT NULL,
+  `data_registro` datetime NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -586,7 +600,7 @@ INSERT INTO `usuarios` (`usuario_id`, `nome`, `login`, `senha_hash`, `tipo`, `at
 (9, 'Rikelme', 'rikelme', '$2y$10$ze3F6Y3E0ylpxjgOvot2zupnIBU09gm.d3Uvww/5STzuK75ZHyG6q', 'Funcionario', 1, '2026-04-14 14:37:45', NULL),
 (10, 'Victor', 'victor', '$2y$10$ze3F6Y3E0ylpxjgOvot2zupnIBU09gm.d3Uvww/5STzuK75ZHyG6q', 'Funcionario', 1, '2026-04-14 14:37:45', NULL),
 (11, 'Lucas', 'lucas', '$2y$10$ze3F6Y3E0ylpxjgOvot2zupnIBU09gm.d3Uvww/5STzuK75ZHyG6q', 'Funcionario', 1, '2026-04-14 14:37:45', NULL),
-(12, 'David', 'david', '$2y$10$ze3F6Y3E0ylpxjgOvot2zupnIBU09gm.d3Uvww/5STzuK75ZHyG6q', 'Funcionario', 1, '2026-04-14 14:37:45', NULL);
+(12, 'David', 'david', '$2y$10$ze3F6Y3E0ylpxjgOvot2zupnIBU09gm.d3Uvww/5STzuK75ZHyG6q', 'Funcionario', 1, '2026-04-14 14:37:45', '2026-06-22 00:12:19');
 
 -- --------------------------------------------------------
 
@@ -605,22 +619,6 @@ CREATE TABLE `vendas` (
   `forma_pagamento` enum('Dinheiro','Cartao_Credito','Cartao_Debito','Pix') NOT NULL,
   `comprovante_gerado` tinyint(1) DEFAULT 0,
   `status` enum('Pendente','Confirmado','Em_Preparacao','Concluido','Cancelado') DEFAULT 'Confirmado'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- --------------------------------------------------------
-
---
--- Estrutura para tabela `despesas`
---
-
-CREATE TABLE `despesas` (
-  `despesa_id` int(11) NOT NULL,
-  `data_despesa` date NOT NULL,
-  `descricao` varchar(255) NOT NULL,
-  `categoria` varchar(100) NOT NULL DEFAULT 'Geral',
-  `valor` decimal(10,2) NOT NULL DEFAULT 0.00,
-  `usuario_id` int(11) DEFAULT NULL,
-  `data_registro` datetime NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -750,6 +748,15 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 
 --
+-- Índices de tabela `despesas`
+--
+ALTER TABLE `despesas`
+  ADD PRIMARY KEY (`despesa_id`),
+  ADD KEY `idx_despesas_data` (`data_despesa`),
+  ADD KEY `idx_despesas_categoria` (`categoria`),
+  ADD KEY `idx_despesas_usuario` (`usuario_id`);
+
+--
 -- Índices de tabela `estoque`
 --
 ALTER TABLE `estoque`
@@ -810,15 +817,6 @@ ALTER TABLE `promocoes`
   ADD KEY `criado_por` (`criado_por`);
 
 --
--- Índices de tabela `despesas`
---
-ALTER TABLE `despesas`
-  ADD PRIMARY KEY (`despesa_id`),
-  ADD KEY `idx_despesas_data` (`data_despesa`),
-  ADD KEY `idx_despesas_categoria` (`categoria`),
-  ADD KEY `idx_despesas_usuario` (`usuario_id`);
-
---
 -- Índices de tabela `usuarios`
 --
 ALTER TABLE `usuarios`
@@ -838,6 +836,12 @@ ALTER TABLE `vendas`
 --
 -- AUTO_INCREMENT para tabelas despejadas
 --
+
+--
+-- AUTO_INCREMENT de tabela `despesas`
+--
+ALTER TABLE `despesas`
+  MODIFY `despesa_id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de tabela `estoque`
@@ -885,13 +889,7 @@ ALTER TABLE `produtos`
 -- AUTO_INCREMENT de tabela `promocoes`
 --
 ALTER TABLE `promocoes`
-  MODIFY `promocao_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
-
---
--- AUTO_INCREMENT de tabela `despesas`
---
-ALTER TABLE `despesas`
-  MODIFY `despesa_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `promocao_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT de tabela `usuarios`
@@ -908,6 +906,12 @@ ALTER TABLE `vendas`
 --
 -- Restrições para tabelas despejadas
 --
+
+--
+-- Restrições para tabelas `despesas`
+--
+ALTER TABLE `despesas`
+  ADD CONSTRAINT `despesas_ibfk_1` FOREIGN KEY (`usuario_id`) REFERENCES `usuarios` (`usuario_id`) ON DELETE SET NULL;
 
 --
 -- Restrições para tabelas `estoque`
@@ -948,12 +952,6 @@ ALTER TABLE `produtos`
 --
 ALTER TABLE `promocoes`
   ADD CONSTRAINT `promocoes_ibfk_1` FOREIGN KEY (`criado_por`) REFERENCES `usuarios` (`usuario_id`);
-
---
--- Restrições para tabelas `despesas`
---
-ALTER TABLE `despesas`
-  ADD CONSTRAINT `despesas_ibfk_1` FOREIGN KEY (`usuario_id`) REFERENCES `usuarios` (`usuario_id`) ON DELETE SET NULL;
 
 --
 -- Restrições para tabelas `vendas`
