@@ -15,7 +15,31 @@ $nome_usuario = $_SESSION['nome'] ?? 'User';
 $inicial = strtoupper(substr($nome_usuario, 0, 1));
 
 $erro = '';
+
+
+$periodo  = $_GET['periodo']  ?? '7d';
+$data_fim = $_GET['data_fim'] ?? date('Y-m-d');
+$data_ini = $_GET['data_ini'] ?? date('Y-m-d', strtotime('-6 days'));
+
+// Atalhos de período
+switch ($periodo) {
+    case 'hoje': $data_ini = date('Y-m-d');       $data_fim = date('Y-m-d'); break;
+    case '7d':   $data_ini = date('Y-m-d', strtotime('-6 days')); $data_fim = date('Y-m-d'); break;
+    case '30d':  $data_ini = date('Y-m-d', strtotime('-29 days')); $data_fim = date('Y-m-d'); break;
+    case 'mes':  $data_ini = date('Y-m-01');      $data_fim = date('Y-m-d'); break;
+}
+
+$dt_ini_sql = $data_ini . ' 00:00:00';
+$dt_fim_sql = $data_fim . ' 23:59:59';
+
+
+
+$q = $pdo->query("SELECT COUNT(*) AS total FROM vendas WHERE status = 'Confirmado'");
+$resultado = $q->fetch();
 ?>
+?>
+
+
 
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -45,11 +69,37 @@ $erro = '';
                 <h1>Visão Geral do Sistema</h1>
             </header>
 
+            
+
             <section class="main">
 
-                <div class="grid-cards">
+            <div class="box">
+                    <h3><i class="fa-solid fa-clock-rotate-left"></i> Dashboard — Sorveteria</h3>
+                    <form method="GET" action="dashboard">
+
+    <!-- Atalhos -->
+    <a href="dashboard?periodo=hoje" class="<?= $periodo === 'hoje' ? 'ativo' : '' ?>">Hoje</a>
+    <a href="dashboard?periodo=7d"   class="<?= $periodo === '7d'   ? 'ativo' : '' ?>">7 dias</a>
+    <a href="dashboard?periodo=30d"  class="<?= $periodo === '30d'  ? 'ativo' : '' ?>">30 dias</a>
+    <a href="dashboard?periodo=mes"  class="<?= $periodo === 'mes'  ? 'ativo' : '' ?>">Mês</a>
+
+    <!-- Datas customizáveis -->
+    <input type="date" name="data_ini" value="<?= $data_ini ?>" onchange="this.form.periodo.value='custom'">
+    <input type="date" name="data_fim" value="<?= $data_fim ?>" onchange="this.form.periodo.value='custom'">
+    <input type="hidden" name="periodo" value="<?= $periodo ?>">
+
+    <button type="submit">Filtrar</button>
+
+</form>
+
+                    
+                </div>
+
+
+                
+             <div class="grid-cards">
                     <div class="card">
-                       
+                       <div class="kpi-valor"><?= $resultado['total'] ?></div>
                     </div>
 
                     <div class="card">
