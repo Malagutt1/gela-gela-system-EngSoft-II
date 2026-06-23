@@ -586,7 +586,7 @@ INSERT INTO `usuarios` (`usuario_id`, `nome`, `login`, `senha_hash`, `tipo`, `at
 (9, 'Rikelme', 'rikelme', '$2y$10$ze3F6Y3E0ylpxjgOvot2zupnIBU09gm.d3Uvww/5STzuK75ZHyG6q', 'Funcionario', 1, '2026-04-14 14:37:45', NULL),
 (10, 'Victor', 'victor', '$2y$10$ze3F6Y3E0ylpxjgOvot2zupnIBU09gm.d3Uvww/5STzuK75ZHyG6q', 'Funcionario', 1, '2026-04-14 14:37:45', NULL),
 (11, 'Lucas', 'lucas', '$2y$10$ze3F6Y3E0ylpxjgOvot2zupnIBU09gm.d3Uvww/5STzuK75ZHyG6q', 'Funcionario', 1, '2026-04-14 14:37:45', NULL),
-(12, 'David', 'david', '$2y$10$ze3F6Y3E0ylpxjgOvot2zupnIBU09gm.d3Uvww/5STzuK75ZHyG6q', 'Funcionario', 1, '2026-04-14 14:37:45', '2026-06-22 00:12:19');
+(12, 'David', 'david', '$2y$10$ze3F6Y3E0ylpxjgOvot2zupnIBU09gm.d3Uvww/5STzuK75ZHyG6q', 'Funcionario', 1, '2026-04-14 14:37:45', '2026-06-22 00:12:19'),
 (13, 'Gerente', 'gerente', '$2y$10$12a0VybVGGGiJpVzpriXCew.M1e03polbVOXX6ngWRogJc6k6POXi', 'Gerente', 1, '2026-04-07 21:12:10', NULL),
 (14, 'Funcionario', 'funcionario', '$2y$10$bGEGmIRJ.A9QC1RSZCsqUuYkh/Hc8Rjq4lnRMru79PkGrED5qNxdu', 'Funcionario', 1, '2026-04-07 21:12:10', NULL);
 
@@ -905,7 +905,7 @@ ALTER TABLE `despesas`
 -- AUTO_INCREMENT de tabela `usuarios`
 --
 ALTER TABLE `usuarios`
-  MODIFY `usuario_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `usuario_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT de tabela `vendas`
