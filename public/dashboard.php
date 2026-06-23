@@ -1,5 +1,6 @@
 <?php 
 session_start();
+require_once '../components/valida-sessao.php';
 require_once '../conecta.php';
 
 if (!isset($_SESSION['logado']) || $_SESSION['logado'] !== true) {
@@ -159,7 +160,7 @@ $erro = '';
         </main>
     </div>
 
-    <script src="/ASSETS/JS/sidebar.js"></script>
+    <script src="ASSETS/JS/sidebar.js"></script>
     
 </body>
 

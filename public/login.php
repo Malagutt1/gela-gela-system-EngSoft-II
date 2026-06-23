@@ -5,6 +5,7 @@ if (isset($_SESSION['logado']) && $_SESSION['logado'] === true) {
     header('Location: vendas');
     exit();
 }
+$usuarioLembrado = isset($_COOKIE['lembrar_usuario']) ? $_COOKIE['lembrar_usuario'] : '';
 ?>
 
 <!DOCTYPE html>
@@ -38,35 +39,38 @@ if (isset($_SESSION['logado']) && $_SESSION['logado'] === true) {
                     echo '<div class="alert error">Usuário ou senha incorretos!</div>';
                 } elseif ($_GET['erro'] == '2') {
                     echo '<div class="alert error">Preencha todos os campos!</div>';
+                } elseif ($_GET['erro'] == '3') {
+                    echo '<div class="alert error">Sessão expirada por inatividade (15 min).</div>';
                 }
-            }
-            if (isset($_GET['sucesso']) && $_GET['sucesso'] == '1') {
-                echo '<div class="alert success">Login realizado com sucesso!</div>';
             }
             ?>
 
             <form method="POST" action="login_processa.php">
 
                 <div class="input-group">
-                    <label for="usuario">Usuário ou E-mail</label>
+                    <label for="usuario">Usuário</label>
                     <div class="input-wrapper">
-                        <input type="text" id="usuario" name="usuario" placeholder="Ex: funcionario@gelagela.com" required>
+                        <input type="text" id="usuario" name="usuario" placeholder="Ex: funcionario" value="<?php echo htmlspecialchars($usuarioLembrado); ?>" required <?php echo empty($usuarioLembrado) ? 'autofocus' : ''; ?>>
                         <i class="fa fa-user"></i>
                     </div>
                 </div>
 
                 <div class="input-group">
                     <label for="senha">Senha de Acesso</label>
-                    <div class="input-wrapper">
-                        <input type="password" id="senha" name="senha" placeholder="••••••••" required>
-                        <i class="fa fa-lock"></i>
+                    <div class="input-wrapper" style="position: relative; display: flex; align-items: center;">
+
+                        <i class="fa fa-lock" style="position: absolute !important; left: 15px !important; right: auto !important; top: 50% !important; transform: translateY(-50%) !important; color: #888; pointer-events: none;"></i>
+
+                        <input type="password" id="senha" name="senha" placeholder="••••••••" style="padding-left: 42px !important; padding-right: 45px !important; width: 100%;" required <?php echo !empty($usuarioLembrado) ? 'autofocus' : ''; ?>>
+
+                        <i class="fa fa-eye" id="togglePassword" style="cursor: pointer; position: absolute !important; right: 15px !important; left: auto !important; top: 50% !important; transform: translateY(-50%) !important; color: #888; z-index: 10;"></i>
                     </div>
                 </div>
 
                 <div class="options">
                     <label class="remember-me">
-                        <input type="checkbox" name="lembrar">
-                        <span>Lembrar minhas credenciais</span>
+                        <input type="checkbox" name="lembrar" <?php echo !empty($usuarioLembrado) ? 'checked' : ''; ?>>
+                        <span>Lembrar meu usuário</span>
                     </label>
                 </div>
 
@@ -82,6 +86,20 @@ if (isset($_SESSION['logado']) && $_SESSION['logado'] === true) {
         </div>
     </div>
 
+    <script>
+        const togglePassword = document.querySelector('#togglePassword');
+        const password = document.querySelector('#senha');
+
+        togglePassword.addEventListener('click', function() {
+            // Alterna o tipo do input entre password e text
+            const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+            password.setAttribute('type', type);
+
+            // Alterna o ícone (olho aberto / olho cortado)
+            this.classList.toggle('fa-eye');
+            this.classList.toggle('fa-eye-slash');
+        });
+    </script>
 </body>
 
 </html>

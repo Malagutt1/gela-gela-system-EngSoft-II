@@ -1,6 +1,7 @@
 <?php
 // O PHP DEVE SER A PRIMEIRA COISA NO ARQUIVO (Antes do HTML)
 session_start();
+require_once '../components/valida-sessao.php';
 require_once '../conecta.php';
 
 if (!isset($_SESSION['logado']) || $_SESSION['logado'] !== true) {

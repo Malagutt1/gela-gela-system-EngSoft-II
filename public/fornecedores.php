@@ -1,5 +1,6 @@
 <?php 
 session_start();
+require_once '../components/valida-sessao.php';
 require_once '../conecta.php';
 
 // Busca incluindo o telefone, que existe no seu banco de dados

@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Gela-Gela Landing Page - Main Application com Anime.js
+   Gela-Gela Landing Page
    ========================================================================== */
 
 const products = [
