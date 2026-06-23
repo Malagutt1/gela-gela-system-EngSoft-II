@@ -46,6 +46,9 @@ $erro = '';
                     <i class="fa-solid fa-bars"></i>
                 </button>
                 <h1>Visão Geral do Sistema</h1>
+                <?php
+                    require_once '../components/user-menu.php';
+                ?>
             </header>
 
             <section class="main">
@@ -161,7 +164,7 @@ $erro = '';
     </div>
 
     <script src="ASSETS/JS/sidebar.js"></script>
-    
+    <script src="ASSETS/JS/user-menu.js"></script>
 </body>
 
 </html>
