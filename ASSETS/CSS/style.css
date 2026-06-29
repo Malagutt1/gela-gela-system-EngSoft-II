@@ -1008,3 +1008,7 @@ tbody tr:hover td {
     font-weight: 700;
     color: var(--secondary);
 }
+.badge-pag { font-size:.7rem; padding:2px 8px; border-radius:999px; font-weight:700; }
+.badge-pag.din { background:#f0fdf4; color:#16a34a; border:1px solid #dcfce7; }
+.badge-pag.pix { background:#eff6ff; color:#1d4ed8; border:1px solid #bfdbfe; }
+.badge-pag.crt { background:#fffbeb; color:#d97706; border:1px solid #fde68a; }
