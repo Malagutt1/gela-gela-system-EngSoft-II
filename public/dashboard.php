@@ -276,6 +276,25 @@ $q->bindValue(':lim', $lim_vendas, PDO::PARAM_INT);
 $q->execute();
 $ultimas_rows = $q->fetchAll();
 
+// Estoque tempo real
+$q = $pdo->query("
+    SELECT p.nome, p.categoria, e.quantidade_disponivel AS qtd, e.validade
+    FROM estoque e
+    JOIN produtos p ON p.produto_id = e.produto_id
+    WHERE p.ativo = 1
+    ORDER BY p.categoria, e.quantidade_disponivel ASC
+");
+$estoque_rows = $q->fetchAll();
+$estoque_max  = $estoque_rows ? max(array_column($estoque_rows, 'qtd')) : 1;
+
+$lim_c = 5; $lim_b = 10;
+$alerta_c = $alerta_b = $alerta_v = 0;
+foreach ($estoque_rows as $e) {
+    if ($e['qtd'] <= $lim_c) $alerta_c++;
+    elseif ($e['qtd'] <= $lim_b) $alerta_b++;
+    if ($e['validade'] && strtotime($e['validade']) <= strtotime('+30 days')) $alerta_v++;
+}
+
 ?>
 
 
@@ -315,11 +334,10 @@ $ultimas_rows = $q->fetchAll();
 
             <section class="main">
 
-            <div class="box">
-                    <h3><i class="fa-solid fa-clock-rotate-left"></i> Dashboard — Sorveteria</h3>
+            <div class="filtro">
+                    <p style="font-size:.95rem; font-weight:1000; letter-spacing:.10em; text-transform:uppercase; color:var(--secondary); margin:28px 0 16px; display:flex; align-items:center; gap:6px; padding-bottom:10px; border-bottom:2px solid var(--soft);"></i> Dashboard — Sorveteria</h3>
+                    </p>
                     <form method="GET" action="dashboard">
-
-   <form method="GET" action="dashboard">
     <div class="dash-filtro">
 
         <div class="periodo-btns">
@@ -340,15 +358,12 @@ $ultimas_rows = $q->fetchAll();
 
     </div>
 </form>
-</form>
+
 
                     
-                </div>
-
-
-                
-             <div class="grid-cards">
-                   <div class="card">
+</div>
+<div class="grid-cards">
+    <div class="card">
     <div class="kpi-label">
         <i class="fa-solid fa-dollar-sign"></i> Faturamento
     </div>
@@ -433,7 +448,8 @@ $ultimas_rows = $q->fetchAll();
                 
 
                <!-- Título da seção -->
-<p class="sec-title">Análise de vendas</p>
+<p style="font-size:.95rem; font-weight:1000; letter-spacing:.10em; text-transform:uppercase; color:var(--secondary); margin:28px 0 16px; display:flex; align-items:center; gap:6px; padding-bottom:10px; border-bottom:2px solid var(--soft);">
+Análise de vendas</p>
 
 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
 
@@ -514,7 +530,9 @@ $ultimas_rows = $q->fetchAll();
 
 </div>
 
-<p class="sec-title">Avaliações</p>
+<p style="font-size:.95rem; font-weight:1000; letter-spacing:.10em; text-transform:uppercase; color:var(--secondary); margin:28px 0 16px; display:flex; align-items:center; gap:6px; padding-bottom:10px; border-bottom:2px solid var(--soft);">
+    <i class="fa-solid fa-star" style="font-size:13px;"></i> Avaliações
+</p>
 
 <div class="box" style="margin-bottom: 20px;">
     <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;">
@@ -540,7 +558,10 @@ $ultimas_rows = $q->fetchAll();
 </div>
 
 <!-- ÚLTIMAS VENDAS -->
-<p class="sec-title"><i class="fa-solid fa-list"></i> Últimas vendas</p>
+
+<p style="font-size:.95rem; font-weight:1000; letter-spacing:.10em; text-transform:uppercase; color:var(--secondary); margin:28px 0 16px; display:flex; align-items:center; gap:6px; padding-bottom:10px; border-bottom:2px solid var(--soft);">
+<i class="fa-solid fa-list"></i> Últimas vendas
+</p>
 
 <div class="box">
     <div style="display:flex; align-items:center; gap:10px; margin-bottom:14px;">
@@ -606,54 +627,99 @@ $ultimas_rows = $q->fetchAll();
     <?php endif; ?>
 </div>
 
-<!-- ESTOQUE -->
-<p class="sec-title">Estoque — tempo real, sem filtro de período</p>
 
-<!-- Alertas -->
-<div class="alert">2 produtos com estoque crítico — reposição urgente necessária</div>
-<div class="alert">1 produto com estoque baixo · 2 produtos com validade próxima (30 dias)</div>
+<p style="font-size:.95rem; font-weight:1000; letter-spacing:.10em; text-transform:uppercase; color:var(--secondary); margin:28px 0 16px; display:flex; align-items:center; gap:6px; padding-bottom:10px; border-bottom:2px solid var(--soft);">
+<i class="fa-solid fa-boxes-stacked"></i> Estoque — tempo real</p>
 
-<!-- Grid Sorvetes + Acompanhamentos -->
-<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+<?php if($alerta_c > 0): ?>
+<div style="display:flex;align-items:center;gap:10px;background:#fff5f5;border:1px solid #fecaca;border-radius:10px;padding:10px 16px;margin-bottom:10px;font-size:.88rem;font-weight:600;color:#c0392b;">
+    <i class="fa-solid fa-triangle-exclamation"></i>
+    <?= $alerta_c ?> produto(s) com estoque crítico (≤ <?= $lim_c ?> kg) — reposição urgente!
+</div>
+<?php endif; ?>
 
-    <div class="box">
-        <h3>Sorvetes</h3>
-        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
-            <div><!-- item estoque --></div>
-            <div><!-- item estoque --></div>
-            <div><!-- item estoque --></div>
+<?php if($alerta_b > 0): ?>
+<div style="display:flex;align-items:center;gap:10px;background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:10px 16px;margin-bottom:10px;font-size:.88rem;font-weight:600;color:#d97706;">
+    <i class="fa-solid fa-circle-exclamation"></i>
+    <?= $alerta_b ?> produto(s) com estoque baixo (≤ <?= $lim_b ?> kg)
+</div>
+<?php endif; ?>
+
+<?php if($alerta_v > 0): ?>
+<div style="display:flex;align-items:center;gap:10px;background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:10px 16px;margin-bottom:10px;font-size:.88rem;font-weight:600;color:#d97706;">
+    <i class="fa-solid fa-calendar-xmark"></i>
+    <?= $alerta_v ?> produto(s) com validade nos próximos 30 dias
+</div>
+<?php endif; ?>
+
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:20px;">
+
+<?php
+$cats = array_unique(array_column($estoque_rows, 'categoria'));
+foreach ($cats as $cat):
+    $itens = array_values(array_filter($estoque_rows, fn($e) => $e['categoria'] === $cat));
+    if (empty($itens)) continue;
+    $slug  = preg_replace('/\W/', '', $cat);
+    $icone = $cat === 'Sorvete' ? 'ice-cream' : ($cat === 'Adicionais' ? 'bowl-food' : 'box');
+?>
+<div class="box" style="padding:16px;">
+    <h3 style="margin:0 0 12px 0;border:none;padding:0;font-size:14px;">
+        <i class="fa-solid fa-<?= $icone ?>"></i> <?= htmlspecialchars($cat) ?>s
+    </h3>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;">
+   <?php foreach ($itens as $i => $e):
+    $ce  = $e['qtd'] <= $lim_c ? 'danger' : ($e['qtd'] <= $lim_b ? 'warn' : '');
+    $cor = $ce === 'danger' ? '#e74c3c' : ($ce === 'warn' ? '#f39c12' : '#27ae60');
+    $bg  = $ce === 'danger' ? '#fff5f5' : ($ce === 'warn' ? '#fffbeb' : '#f8f9fa');
+    $bdr = $ce === 'danger' ? '#fecaca' : ($ce === 'warn' ? '#fde68a' : 'rgba(0,0,0,.07)');
+    $tc  = $ce === 'danger' ? '#c0392b' : ($ce === 'warn' ? '#d97706' : 'var(--secondary)');
+
+    // máximo relativo à categoria, não ao total geral
+    $max_cat = max(array_column($itens, 'qtd'));
+    $pce = $max_cat > 0 ? min(100, round($e['qtd'] / $max_cat * 100)) : 0;
+
+    // itens extras recebem a mesma borda colorida
+    if ($i >= 4) {
+        $extra = "class=\"est-extra est-extra-{$slug}\" style=\"display:none; background:{$bg}; border:1px solid {$bdr}; border-radius:8px; padding:8px 10px;\"";
+    } else {
+        $extra = '';
+    }
+?>
+<div <?= $extra ?> style="<?= $i < 4 ? "background:{$bg};border:1px solid {$bdr};border-radius:8px;padding:8px 10px;" : '' ?>">
+        <div style="font-size:.72rem;font-weight:700;color:<?=$tc?>;margin-bottom:4px;display:flex;align-items:center;gap:4px;">
+            <span style="width:6px;height:6px;border-radius:50%;background:<?=$cor?>;flex-shrink:0;display:inline-block;"></span>
+            <?= htmlspecialchars($e['nome']) ?>
+        </div>
+        <div style="height:4px;background:#e0e0e0;border-radius:3px;overflow:hidden;margin-bottom:3px;">
+            <div style="width:<?=$pce?>%;height:100%;background:<?=$cor?>;border-radius:3px;"></div>
+        </div>
+        <div style="font-size:.68rem;color:var(--text-muted);">
+            <?= number_format($e['qtd'], 3, ',', '.') ?> kg
         </div>
     </div>
+    <?php endforeach; ?>
+    </div>
 
-    <div class="box">
-        <h3>Acompanhamentos</h3>
-        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
-            <div><!-- item estoque --></div>
-            <div><!-- item estoque --></div>
-            <div><!-- item estoque --></div>
-        </div>
+    <?php if(count($itens) > 4): ?>
+    <div style="text-align:center;margin-top:10px;">
+        <button onclick="toggleEst('<?=$slug?>', this)"
+                style="background:none;border:1px solid #ddd;border-radius:8px;padding:5px 14px;cursor:pointer;color:var(--secondary);font-size:.78rem;font-weight:600;">
+            <i class="fa-solid fa-chevron-down"></i> +<?= count($itens)-4 ?> itens
+        </button>
+    </div>
+    <?php endif; ?>
+</div>
+
+<?php endforeach; ?>
+</div>
+</div>
+
+</div>
     </div>
 
 </div>
 
-<!-- Validades próximas -->
-<div class="box">
-    <div style="display: flex; justify-content: space-between; margin-bottom: 14px;">
-        <h3>Validades próximas</h3>
-        <span>próximos 30 dias</span>
-    </div>
-    <div>
-        <div style="display: flex; justify-content: space-between;">
-            <span>Nome do produto</span>
-            <span>vence 00/00/0000</span>
-            <span class="badge">X dias</span>
-        </div>
-        <!-- mais linhas -->
-    </div>
-</div>
-            </section>
-        </main>
-    </div>
 
     <script src="ASSETS/JS/sidebar.js"></script>
 
@@ -784,4 +850,12 @@ function filtrarVendas() {
     });
 }
 
+function toggleEst(slug, btn) {
+    const extras = document.querySelectorAll('.est-extra-' + slug);
+    const aberto = extras[0] && extras[0].style.display !== 'none';
+    extras.forEach(el => el.style.display = aberto ? 'none' : '');
+    btn.innerHTML = aberto
+        ? '<i class="fa-solid fa-chevron-down"></i> +' + extras.length + ' itens'
+        : '<i class="fa-solid fa-chevron-up"></i> Ver menos';
+}
 </script>
