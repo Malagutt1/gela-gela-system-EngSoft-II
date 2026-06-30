@@ -116,6 +116,48 @@ $consumo = $q->fetch();
 $diff_dias = (int)((strtotime($data_fim) - strtotime($data_ini)) / 86400);
 $modo_dia  = ($diff_dias === 0);
 
+// Total de descontos + vendas com promoção
+$q = $pdo->prepare("
+    SELECT
+        COALESCE(SUM(desconto_aplicado), 0)                        AS total_desc,
+        COUNT(CASE WHEN promocao_id IS NOT NULL THEN 1 END)        AS com_promo
+    FROM vendas
+    WHERE data_venda BETWEEN :ini AND :fim AND status = 'Confirmado'
+");
+$q->execute([':ini' => $dt_ini_sql, ':fim' => $dt_fim_sql]);
+$descontos = $q->fetch();
+
+// Total de vendas
+$q = $pdo->prepare("
+    SELECT COUNT(*) AS total_vendas
+    FROM vendas
+    WHERE data_venda BETWEEN :ini AND :fim AND status = 'Confirmado'
+");
+$q->execute([':ini' => $dt_ini_sql, ':fim' => $dt_fim_sql]);
+$vendas = $q->fetch();
+
+// Avaliação média
+$q = $pdo->prepare("
+    SELECT
+        COALESCE(AVG(nota), 0) AS media,
+        COUNT(*)                     AS total
+    FROM feedbacks_clientes
+    WHERE data_registro BETWEEN :ini AND :fim
+");
+$q->execute([':ini' => $dt_ini_sql, ':fim' => $dt_fim_sql]);
+$aval = $q->fetch();
+
+// Pico de vendas
+$q = $pdo->prepare("
+    SELECT HOUR(data_venda) AS hora, COUNT(*) AS qtd
+    FROM vendas
+    WHERE data_venda BETWEEN :ini AND :fim AND status = 'Confirmado'
+    GROUP BY HOUR(data_venda)
+    ORDER BY qtd DESC
+    LIMIT 1
+");
+$q->execute([':ini' => $dt_ini_sql, ':fim' => $dt_fim_sql]);
+$pico = $q->fetch();
 // Evolução por dia ou por hora
 if ($modo_dia) {
     $q = $pdo->prepare("
@@ -208,7 +250,9 @@ $q = $pdo->prepare("
 $q->execute([':ini' => $dt_ini_sql, ':fim' => $dt_fim_sql]);
 $pagamentos_rows = $q->fetchAll();
 $total_pag = array_sum(array_column($pagamentos_rows, 'qtd'));
+
 // Heatmap
+
 $q = $pdo->prepare("
     SELECT HOUR(data_venda) AS hora, COUNT(*) AS qtd
     FROM vendas
@@ -219,6 +263,7 @@ $q->execute([':ini' => $dt_ini_sql, ':fim' => $dt_fim_sql]);
 $heat_map = [];
 foreach ($q->fetchAll() as $r) $heat_map[(int)$r['hora']] = (int)$r['qtd'];
 $heat_max = $heat_map ? max($heat_map) : 1;
+
 
 // Promoções
 // Promoções (query própria)
@@ -397,29 +442,22 @@ foreach ($estoque_rows as $e) {
     <div class="kpi-sub">soma de peso_total</div>
 </div>
 <div class="card">
-    <div class="kpi-label"><i class="fa-solid fa-receipt"></i> Fat. líquido</div>
-    <div class="kpi-valor">R$ <?= number_format($fat['fat_liquido'], 2, ',', '.') ?></div>
-    <div class="kpi-sub">após descontos</div>
-</div>
-    
-<div class="card">
-    <div class="kpi-label"><i class="fa-solid fa-arrow-trend-down"></i> Gastos (CMV)</div>
-    <div class="kpi-valor">R$ <?= number_format($gastos['cmv'], 2, ',', '.') ?></div>
-    <div class="kpi-sub" style="color:#c0392b;">
-        <?= $resultado['faturamento'] > 0 ? number_format($gastos['cmv'] / $resultado['faturamento'] * 100, 1) : 0 ?>% do faturamento
-    </div>
+    <div class="kpi-label"><i class="fa-solid fa-tag"></i> Total de descontos</div>
+    <div class="kpi-valor">R$ <?= number_format($descontos['total_desc'], 2, ',', '.') ?></div>
+    <div class="kpi-sub">em <?= $descontos['com_promo'] ?> vendas c/ promo</div>
 </div>
 
 <div class="card">
-    <div class="kpi-label"><i class="fa-solid fa-ticket"></i> Ticket médio</div>
-    <div class="kpi-valor">R$ <?= number_format($consumo['ticket_medio'], 2, ',', '.') ?></div>
+    <div class="kpi-label"><i class="fa-solid fa-cart-shopping"></i> Total de vendas</div>
+    <div class="kpi-valor"><?= $vendas['total_vendas'] ?> vendas</div>
 </div>
 
 <div class="card">
-    <div class="kpi-label"><i class="fa-solid fa-weight-scale"></i> Consumo total</div>
-    <div class="kpi-valor"><?= number_format($consumo['consumo_kg'], 3, ',', '.') ?> kg</div>
-    <div class="kpi-sub">soma de peso_total</div>
+    <div class="kpi-label"><i class="fa-solid fa-star"></i> Avaliação média</div>
+    <div class="kpi-valor"><?= number_format($aval['media'], 1, ',', '.') ?> / 5</div>
+    <div class="kpi-sub"><?= $aval['total'] ?> feedbacks</div>
 </div>
+
                 </div>
 
                 <div class="box">
@@ -719,6 +757,7 @@ foreach ($cats as $cat):
     </div>
 
 </div>
+
 
 
     <script src="ASSETS/JS/sidebar.js"></script>
